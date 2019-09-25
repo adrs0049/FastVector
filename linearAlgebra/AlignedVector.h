@@ -29,9 +29,8 @@
 
 #define ALIGNED_TYPE_(t, x) typedef ALIGNED_(x) t
 
-#include "../allocator/AlignmentAllocator.h"
+#include "allocator/AlignedMemory.h"
 
-using Memory::AlignedAllocator;
 using Memory::Alignment;
 
 #ifdef __AVX__
@@ -41,16 +40,10 @@ using Memory::Alignment;
 
     static constexpr std::size_t __alignment = to_integral(Alignment::AVX);
 
-    template<typename T>
-    using AligndVector = typename std::vector<T, AlignedAllocator<T, Alignment::AVX>>;
-
 #elif __SSE__
     #ifdef DEBUG
         #pragma message "Selecting SSE 16 byte alignment"
     #endif
-
-    template<typename T>
-    using AligndVector = typename std::vector<T, AlignedAllocator<T, Alignment::SSE>>;
 
     static constexpr std::size_t __alignment = to_integral(Alignment::SSE);
 
@@ -60,9 +53,6 @@ using Memory::Alignment;
     #endif
 
     static constexpr std::size_t __alignment = to_integral(Alignment::Normal);
-
-    template<typename T>
-    using AligndVector = typename std::vector<T>;
 
 #endif // end alignment switch
 
@@ -80,23 +70,5 @@ ALIGNED_TYPE_(int,              __alignment) aligned_int;
 ALIGNED_TYPE_(unsigned int,     __alignment) aligned_uint;
 ALIGNED_TYPE_(long,             __alignment) aligned_long;
 ALIGNED_TYPE_(unsigned long,    __alignment) aligned_ulong;
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const AligndVector<T>& vec)
-{
-    const std::size_t n {vec.size()};
-    os << "[";
-    if (n == 0)
-    {
-        os << "]" << std::endl;
-        return os;
-    }
-    for (std::size_t i = 0; i < n-1; i++)
-    {
-       os << vec[i] << ", ";
-    }
-    os << vec[n-1] << "]" << std::endl;
-    return os;
-}
 
 #endif
