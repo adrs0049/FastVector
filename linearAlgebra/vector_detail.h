@@ -564,63 +564,6 @@ struct VectorClass<T, 3> : public BaseVector<VectorClass<T, 3>, T, 3>
         : x(_x), y(_y), z(_z)
     {}
 
-    void DEPRECATED(Multiply(const T value))
-    {
-        *this *= value;
-    }
-
-    void DEPRECATED(Set(T x, T y, T z))
-    {
-        *this = VectorClass(x, y, z);
-    }
-
-    void DEPRECATED(Set(const VectorClass& vector))
-    {
-        *this = VectorClass(vector);
-    }
-
-    void DEPRECATED(Add(T x, T y, T z))
-    {
-        *this += VectorClass(x, y, z);
-    }
-
-    void DEPRECATED(Add(const VectorClass& vector))
-    {
-        *this += vector;
-    }
-
-    void DEPRECATED(Add(T d_ , int index))
-    {
-        switch( index )
-        {
-            case 0:
-                x += d_;
-            break;
-            case 1:
-                y += d_;
-            break;
-            case 2:
-                z += d_;
-            break;
-        }
-    }
-
-    void DEPRECATED(Set(T x_, int i))
-    {
-        switch( i)
-        {
-            case 0:
-                x = x_;
-            break;
-            case 1:
-                y = x_;
-            break;
-            case 2:
-                z = x_;
-             break;
-        }
-    }
-
     ~VectorClass() {}
 
     union {
