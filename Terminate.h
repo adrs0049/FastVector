@@ -161,7 +161,7 @@ namespace Error {
 
         void unmangle(void ** array, std::size_t size)
         {
-            char ** messages = backtrace_symbols(array,  size);
+            char ** messages = backtrace_symbols(array,  (int)size);
 
             //  skip first stack frame it points here
             for (unsigned int i = 1; i < size && messages != NULL; ++i)
