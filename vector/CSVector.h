@@ -386,6 +386,24 @@ inline void swap(CSVector<T>& lhs, CSVector<T>& rhs)
 
 template <typename E1, typename E2,
           typename = Enable_if<Scalar<E2>()> >
+inline VectorScalarAssignmentOpExpression<E1, E2, plus_assign<typename E1::value_type, E2> >
+operator+= (VectorExpression<E1>& e1, const E2& e2)
+{
+    using rtype = VectorScalarAssignmentOpExpression<E1, E2, plus_assign<typename E1::value_type, E2> >;
+    return rtype(static_cast<E1&>(e1), e2);
+}
+
+template <typename E1, typename E2,
+          typename = Enable_if<Scalar<E2>()> >
+inline VectorScalarAssignmentOpExpression<E1, E2, minus_assign<typename E1::value_type, E2> >
+operator-= (VectorExpression<E1>& e1, const E2& e2)
+{
+    using rtype = VectorScalarAssignmentOpExpression<E1, E2, minus_assign<typename E1::value_type, E2> >;
+    return rtype(static_cast<E1&>(e1), e2);
+}
+
+template <typename E1, typename E2,
+          typename = Enable_if<Scalar<E2>()> >
 inline VectorScalarAssignmentOpExpression<E1, E2, product_assign<typename E1::value_type, E2> >
 operator*= (VectorExpression<E1>& e1, const E2& e2)
 {
@@ -400,6 +418,43 @@ operator/= (VectorExpression<E1>& e1, const E2& e2)
 {
     using rtype = VectorScalarAssignmentOpExpression<E1, E2, divide_assign<typename E1::value_type, E2> >;
     return rtype(static_cast<E1&>(e1), e2);
+}
+
+template <typename E1, typename E2,
+          typename = Enable_if<Scalar<E2>()> >
+inline VectorScalarBinaryExpression<E1, E2, plus_test<typename E1::value_type, E2> >
+operator+ (const VectorExpression<E1>& e1, const E2& e2)
+{
+    using rtype = VectorScalarBinaryExpression<E1, E2, plus_test<typename E1::value_type, E2> >;
+    return rtype(static_cast<const E1&>(e1), e2);
+}
+
+template <typename E1, typename E2,
+          typename = Enable_if<Scalar<E1>()> >
+inline VectorScalarBinaryExpression<E2, E1, plus_test<typename E2::value_type, E1> >
+operator+ (const E1& e1, const VectorExpression<E2>& e2)
+{
+    using rtype = VectorScalarBinaryExpression<E2, E1, plus_test<typename E2::value_type, E1> >;
+    return rtype(static_cast<const E2&>(e2), e1);
+}
+
+
+template <typename E1, typename E2,
+          typename = Enable_if<Scalar<E2>()> >
+inline VectorScalarBinaryExpression<E1, E2, minus_test<typename E1::value_type, E2> >
+operator- (const VectorExpression<E1>& e1, const E2& e2)
+{
+    using rtype = VectorScalarBinaryExpression<E1, E2, minus_test<typename E1::value_type, E2> >;
+    return rtype(static_cast<const E1&>(e1), e2);
+}
+
+template <typename E1, typename E2,
+          typename = Enable_if<Scalar<E1>()> >
+inline VectorScalarBinaryExpression<E2, E1, inverse_minus<typename E2::value_type, E1> >
+operator- (const E1& e1, const VectorExpression<E2>& e2)
+{
+    using rtype = VectorScalarBinaryExpression<E2, E1, inverse_minus<typename E2::value_type, E1> >;
+    return rtype(static_cast<const E2&>(e2), e1);
 }
 
 template <typename E1, typename E2,
@@ -470,13 +525,15 @@ operator- (const VectorExpression<E1>& e1, const VectorExpression<E2>& e2)
     return rtype(static_cast<const E1&>(e1), static_cast<const E2&>(e2));
 }
 
-template <class T>
+// This is only enabled when T is of floating point so we don't interfer with the above!
+template <class T, typename = Enable_if<All(Integral<T>(), Floating_Point<T>())> >
 auto operator+(CSVector<T>& lhs, const size_t index)
 {
     return lhs.begin() + index;
 }
 
-template <class T>
+// This is only enabled when T is of floating point so we don't interfer with the above!
+template <class T, typename = Enable_if<All(Integral<T>(), Floating_Point<T>())> >
 const auto operator+(const CSVector<T>& lhs, const size_t index)
 {
     return lhs.begin() + index;
@@ -864,4 +921,3 @@ std::ostream& operator<<(std::ostream& os, const CSVector<T>& vector)
 }
 
 #endif // CS_VECTOR
-

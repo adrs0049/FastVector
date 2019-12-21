@@ -135,6 +135,24 @@ struct minus_test
 };
 
 template <typename Value1, typename Value2>
+struct inverse_minus
+{
+    using first_argument_type   = const Value1&;
+    using second_argument_type  = const Value2&;
+    using result_type           = std::common_type_t<Value1, Value2>;
+
+    static inline result_type apply(first_argument_type v1, second_argument_type v2)
+    {
+        return v2 - v1;
+    }
+
+    result_type operator()(first_argument_type v1, second_argument_type v2) const
+    {
+        return v2 - v1;
+    }
+};
+
+template <typename Value1, typename Value2>
 struct product
 {
     using first_argument_type   = const Value1&;

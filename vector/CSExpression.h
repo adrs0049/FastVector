@@ -146,7 +146,7 @@ inline std::size_t size(const VectorScalarBinaryExpression<EE1, EE2, FFunctor>& 
 //
 // First we define the helpers that unroll the loop.
 //
-namespace impl {
+namespace v_impl {
 
     template <unsigned long Offset, unsigned long Max, typename Functor>
     struct assign
@@ -210,7 +210,7 @@ struct VectorVectorAssignmentOpExpression : VectorExpression<VectorVectorBinaryE
         {
             #pragma omp for
             for (size_type i = 0; i < sb; i+=BSize)
-                impl::assign<0, BSize-1, Functor>::apply(first, second, i);
+                v_impl::assign<0, BSize-1, Functor>::apply(first, second, i);
 
             //for (size_type i = 0; i < s; i++)
             //Functor::apply(first(i), second(i));
@@ -258,6 +258,35 @@ inline std::size_t size(const VectorVectorAssignmentOpExpression<EE1, EE2, FFunc
 // same as of VectorVectorAssignmentOpExpression. Note we are not using openMP
 // here at the moment.
 //
+// First we define the helpers that unroll the loop.
+//
+namespace s_impl {
+
+    template <unsigned long Offset, unsigned long Max, typename Functor>
+    struct assign
+    {
+        using next = assign<Offset + 1, Max, Functor>;
+
+        template <typename E1, typename E2, typename Size>
+        static inline void apply(E1& first, const E2& second, Size i)
+        {
+            Functor::apply(first(Offset + i), second);
+            next::apply(first, second, i);
+        }
+    };
+
+    template <unsigned long Max, typename Functor>
+    struct assign<Max, Max, Functor>
+    {
+        template <typename E1, typename E2, typename Size>
+        static inline void apply(E1& first, const E2& second, Size i)
+        {
+            Functor::apply(first(Max + i), second);
+        }
+    };
+
+} // end namespace
+
 template <typename E1, typename E2, typename Functor>
 struct VectorScalarAssignmentOpExpression : VectorExpression<VectorVectorBinaryExpression<E1, E2, Functor> >
 {
@@ -277,6 +306,31 @@ struct VectorScalarAssignmentOpExpression : VectorExpression<VectorVectorBinaryE
         : first(v1), second(v2)
     {}
 
+    ~VectorScalarAssignmentOpExpression()
+    {
+        assign();
+    }
+
+    void assign()
+    {
+        const size_type BSize = 4;
+        size_type s = size(first), sb = s / BSize * BSize;
+
+        size_type N = size(first);
+
+        #pragma omp parallel num_threads(4)
+        {
+            #pragma omp for
+            for (size_type i = 0; i < sb; i+=BSize)
+                s_impl::assign<0, BSize-1, Functor>::apply(first, second, i);
+        }
+
+        {
+            for (size_type i = sb; i < s; i++)
+                Functor::apply(first(i), second);
+        }
+    }
+
     result_type operator()(size_type i) const
     {
         return Functor::apply(first(i), second);
@@ -285,23 +339,6 @@ struct VectorScalarAssignmentOpExpression : VectorExpression<VectorVectorBinaryE
     result_type operator[](size_type i) const
     {
         return (*this)(i);
-    }
-
-    ~VectorScalarAssignmentOpExpression()
-    {
-        assign();
-    }
-
-    void assign()
-    {
-        size_type N = size(first);
-
-        //#pragma omp parallel num_threads(2)
-        {
-            //#pragma omp for
-            for (size_type i = 0; i < N; i++)
-                Functor::apply(first(i), second);
-        }
     }
 
     template <typename EE1, typename EE2, typename FFunctor>
@@ -393,4 +430,3 @@ struct VectorAssignment :
 
 
 #endif
-

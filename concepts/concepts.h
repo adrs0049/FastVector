@@ -77,6 +77,12 @@ constexpr bool Floating_Point()
     return std::is_floating_point<T>::value;
 }
 
+template<typename T>
+constexpr bool Integral()
+{
+    return std::is_integral<T>::value;
+}
+
 template<class... T>
 using Common_type = typename std::common_type<T...>::type;
 
