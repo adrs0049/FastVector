@@ -16,6 +16,7 @@
 #include <iostream>
 #include <algorithm>
 #include <initializer_list>
+#include <limits>
 
 #include "AlignedMemory.h"
 #include "AlignedVector.h"
@@ -547,6 +548,7 @@ CSVector<T> abs(const CSVector<T>& lhs)
 
     for (size_t i = 0; i < N; i++)
         result(i) = std::abs(lhs(i));
+
     return result;
 }
 
@@ -722,7 +724,14 @@ T max(const CSVector<T>& lhs)
         using ValueType = typename CSVector<T>::ValueType;
         typedef ValueType vec __attribute__((vector_size (sizeof(ValueType) * VECTOR_SIZE)));
 
-        vec temp1 = {0}, temp2 = {0};
+        vec temp1, temp2;
+
+        // need to initialize both vectors
+        for (size_t i = 0; i < VECTOR_SIZE; ++i)
+        {
+            temp1[i] = std::numeric_limits<T>::lowest();
+            temp2[i] = std::numeric_limits<T>::lowest();
+        }
 
         const ValueType * __restrict__ a = lhs.data();
         vec * Av = (vec *) a;
@@ -789,7 +798,14 @@ T min(const CSVector<T>& lhs)
         using ValueType = typename CSVector<T>::ValueType;
         typedef ValueType vec __attribute__((vector_size (sizeof(ValueType) * VECTOR_SIZE)));
 
-        vec temp1 = {0}, temp2 = {0};
+        vec temp1, temp2;
+
+        // need to initialize both vectors
+        for (size_t i = 0; i < VECTOR_SIZE; ++i)
+        {
+            temp1[i] = std::numeric_limits<T>::max();
+            temp2[i] = std::numeric_limits<T>::max();
+        }
 
         const ValueType * __restrict__ a = lhs.data();
         vec * Av = (vec *) a;

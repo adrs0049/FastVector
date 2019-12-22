@@ -63,18 +63,24 @@ public:
     void tearDown()
     {}
 
+    void testMaxQuick()
+    {
+        CSVector<double> vec {-128.427, -310.224, -693.769, -891.324, -105.034, -430.547, -826.372, -781.211};
+        double maxVal = max(vec);
+        auto max_elem = std::max_element(std::begin(vec), std::end(vec));
+        TS_ASSERT_DELTA(maxVal, *max_elem, tol);
+    }
+
     void testMax()
     {
-        TS_TRACE("Starting minimum test");
+        TS_TRACE("Starting maximum test");
         while (keepGoing())
         {
             while (repeats --> 0)
             {
                 auto vec1 = getVectorRandom<double>(currentLength);
                 double maxVal = max(vec1);
-
                 auto max_elem = std::max_element(std::begin(vec1), std::end(vec1));
-
                 TS_ASSERT_DELTA(maxVal, *max_elem, tol);
             }
 
