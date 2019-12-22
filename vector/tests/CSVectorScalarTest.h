@@ -62,6 +62,46 @@ public:
     void tearDown()
     {}
 
+    void testScalarAdditionQuick()
+    {
+        TS_TRACE("Starting quick scalar addition test");
+        CSVector<double> vec1 {0, 1, 2};
+
+        double rnum = 2;
+
+        CSVector<double> res1 (vec1.size());
+        CSVector<double> res2 (vec1.size());
+
+        res1 = rnum * vec1;
+        res2 = vec1 * rnum;
+
+        for (size_t i = 0; i < vec1.size(); ++i)
+        {
+            TS_ASSERT_DELTA(res1[i], vec1[i] * rnum, tol);
+            TS_ASSERT_DELTA(res2[i], vec1[i] * rnum, tol);
+        }
+    }
+
+    void testScalarAdditionQuick2()
+    {
+        TS_TRACE("Starting quick scalar addition test");
+        CSVector<double> vec1 {0, 1, 2};
+
+        double rnum = 2;
+
+        CSVector<double> res1 = rnum * vec1;
+        CSVector<double> res2 = vec1 * rnum;
+
+        res1 = rnum * vec1;
+        res2 = vec1 * rnum;
+
+        for (size_t i = 0; i < vec1.size(); ++i)
+        {
+            TS_ASSERT_DELTA(res1[i], vec1[i] * rnum, tol);
+            TS_ASSERT_DELTA(res2[i], vec1[i] * rnum, tol);
+        }
+    }
+
     void testScalarAddition()
     {
         TS_TRACE("Starting addition product test");

@@ -17,7 +17,12 @@
 
 #include "CSOperations.h"
 #include "CSVectorTraits.h"
+#include "ExecutionPolicy.h"
+#include "concepts.h"
 #include "type_info.h"
+
+namespace Expression
+{
 
 // Template Expressions for CSVector<T>
 //
@@ -40,16 +45,14 @@ struct VectorExpression {};
 // both of vector type.
 //
 template <typename E1, typename E2, typename Functor>
-struct VectorVectorBinaryExpression : VectorExpression<VectorVectorBinaryExpression<E1, E2, Functor> >
+    struct VectorVectorBinaryExpression : VectorExpression<VectorVectorBinaryExpression<E1, E2, Functor> >
 {
     using base = VectorExpression< VectorVectorBinaryExpression<E1, E2, Functor> >;
     using self = VectorVectorBinaryExpression<E1, E2, Functor>;
 
     using value_type  = std::common_type_t<typename E1::value_type, typename E2::value_type>;
     using result_type = typename Functor::result_type;
-
-    // load from somewhere!
-    using size_type = typename E1::size_type;
+    using size_type   = Common_type<typename E1::size_type, typename E2::size_type>;
 
     using first_argument_type   = E1;
     using second_argument_type  = E2;
@@ -98,9 +101,7 @@ struct VectorScalarBinaryExpression : VectorExpression<VectorScalarBinaryExpress
 
     using value_type  = std::common_type_t<typename E1::value_type, E2>;
     using result_type = typename Functor::result_type;
-
-    // load from somewhere!
-    using size_type = std::size_t;
+    using size_type   = typename E1::size_type;
 
     using first_argument_type   = E1;
     using second_argument_type  = E2;
@@ -143,83 +144,34 @@ inline std::size_t size(const VectorScalarBinaryExpression<EE1, EE2, FFunctor>& 
 // using openMp and the loop is unrolled using templates to encourage the
 // compiler to use SSE / AVX instructions.
 //
-//
-// First we define the helpers that unroll the loop.
-//
-namespace v_impl {
-
-    template <unsigned long Offset, unsigned long Max, typename Functor>
-    struct assign
-    {
-        using next = assign<Offset + 1, Max, Functor>;
-
-        template <typename E1, typename E2, typename Size>
-        static inline void apply(E1& first, const E2& second, Size i)
-        {
-            Functor::apply(first(Offset + i), second(Offset + i));
-            next::apply(first, second, i);
-        }
-    };
-
-    template <unsigned long Max, typename Functor>
-    struct assign<Max, Max, Functor>
-    {
-        template <typename E1, typename E2, typename Size>
-        static inline void apply(E1& first, const E2& second, Size i)
-        {
-            Functor::apply(first(Max + i), second(Max + i));
-        }
-    };
-
-} // end namespace
-
 // Now we define the actual expression
-template <typename E1, typename E2, typename Functor>
-struct VectorVectorAssignmentOpExpression : VectorExpression<VectorVectorBinaryExpression<E1, E2, Functor> >
+template <typename E1, typename E2, typename Functor,
+          typename ExecutionPolicy = DefaultExecutionPolicy<E1, E2, Functor, true> >
+struct VectorVectorAssignmentOpExpression :
+    VectorExpression<VectorVectorBinaryExpression<E1, E2, Functor> >,
+    private ExecutionPolicy
 {
-    using base = VectorExpression< VectorVectorAssignmentOpExpression<E1, E2, Functor> >;
-    using self = VectorVectorAssignmentOpExpression<E1, E2, Functor>;
+    using base = VectorExpression< VectorVectorAssignmentOpExpression<E1, E2, Functor, ExecutionPolicy> >;
+    using self = VectorVectorAssignmentOpExpression<E1, E2, Functor, ExecutionPolicy>;
 
     using value_type  = typename E1::value_type;
     using result_type = typename Functor::result_type;
-
-    // load from somewhere!
-    using size_type = std::size_t;
+    using size_type   = Common_type<typename E1::size_type, typename E2::size_type>;
 
     using first_argument_type   = E1;
     using second_argument_type  = E2;
 
     VectorVectorAssignmentOpExpression(first_argument_type& v1, second_argument_type const& v2)
         : first(v1), second(v2)
-    {}
+    {
+        // TODO this check should come earlier! - so we don't throw in the dtor
+        if (size(first) != size(second))
+            throw std::runtime_error("Incompatible vector lengths in vec_vec_assign!");
+    }
 
     ~VectorVectorAssignmentOpExpression()
     {
-        assign();
-    }
-
-    void assign()
-    {
-        const size_type BSize = 4;
-        size_type s = size(first), sb = s / BSize * BSize;
-
-        if (size(first) != size(second))
-            throw std::runtime_error("Incompatible vector lengths in vec_vec_assign!");
-
-        #pragma omp parallel num_threads(4)
-        {
-            #pragma omp for
-            for (size_type i = 0; i < sb; i+=BSize)
-                v_impl::assign<0, BSize-1, Functor>::apply(first, second, i);
-
-            //for (size_type i = 0; i < s; i++)
-            //Functor::apply(first(i), second(i));
-        }
-
-        {
-            for (size_t i = sb; i < s; i++)
-                Functor::apply(first(i), second(i));
-        }
+        ExecutionPolicy::assign(first, second);
     }
 
     result_type operator()(size_type i) const
@@ -258,46 +210,19 @@ inline std::size_t size(const VectorVectorAssignmentOpExpression<EE1, EE2, FFunc
 // same as of VectorVectorAssignmentOpExpression. Note we are not using openMP
 // here at the moment.
 //
-// First we define the helpers that unroll the loop.
-//
-namespace s_impl {
-
-    template <unsigned long Offset, unsigned long Max, typename Functor>
-    struct assign
-    {
-        using next = assign<Offset + 1, Max, Functor>;
-
-        template <typename E1, typename E2, typename Size>
-        static inline void apply(E1& first, const E2& second, Size i)
-        {
-            Functor::apply(first(Offset + i), second);
-            next::apply(first, second, i);
-        }
-    };
-
-    template <unsigned long Max, typename Functor>
-    struct assign<Max, Max, Functor>
-    {
-        template <typename E1, typename E2, typename Size>
-        static inline void apply(E1& first, const E2& second, Size i)
-        {
-            Functor::apply(first(Max + i), second);
-        }
-    };
-
-} // end namespace
-
-template <typename E1, typename E2, typename Functor>
-struct VectorScalarAssignmentOpExpression : VectorExpression<VectorVectorBinaryExpression<E1, E2, Functor> >
+template <typename E1, typename E2, typename Functor,
+         typename ExecutionPolicy = DefaultExecutionPolicy<E1, E2, Functor, false> >
+struct VectorScalarAssignmentOpExpression :
+    VectorExpression<VectorVectorBinaryExpression<E1, E2, Functor> >,
+    private ExecutionPolicy
 {
-    using base = VectorExpression< VectorScalarAssignmentOpExpression<E1, E2, Functor> >;
-    using self = VectorScalarAssignmentOpExpression<E1, E2, Functor>;
+    using base = VectorExpression< VectorScalarAssignmentOpExpression<E1, E2, Functor, ExecutionPolicy> >;
+    using self = VectorScalarAssignmentOpExpression<E1, E2, Functor, ExecutionPolicy>;
 
+    // do some transform checks!
     using value_type  = typename E1::value_type;
     using result_type = typename Functor::result_type;
-
-    // load from somewhere!
-    using size_type = std::size_t;
+    using size_type   = typename E1::size_type;
 
     using first_argument_type   = E1;
     using second_argument_type  = E2;
@@ -308,27 +233,7 @@ struct VectorScalarAssignmentOpExpression : VectorExpression<VectorVectorBinaryE
 
     ~VectorScalarAssignmentOpExpression()
     {
-        assign();
-    }
-
-    void assign()
-    {
-        const size_type BSize = 4;
-        size_type s = size(first), sb = s / BSize * BSize;
-
-        size_type N = size(first);
-
-        #pragma omp parallel num_threads(4)
-        {
-            #pragma omp for
-            for (size_type i = 0; i < sb; i+=BSize)
-                s_impl::assign<0, BSize-1, Functor>::apply(first, second, i);
-        }
-
-        {
-            for (size_type i = sb; i < s; i++)
-                Functor::apply(first(i), second);
-        }
+        ExecutionPolicy::assign(first, second);
     }
 
     result_type operator()(size_type i) const
@@ -341,16 +246,17 @@ struct VectorScalarAssignmentOpExpression : VectorExpression<VectorVectorBinaryE
         return (*this)(i);
     }
 
-    template <typename EE1, typename EE2, typename FFunctor>
-    friend std::size_t size(const VectorScalarAssignmentOpExpression<EE1, EE2, FFunctor>&);
+    template <typename EE1, typename EE2, typename FFunctor, typename Policy>
+    friend std::size_t size(const VectorScalarAssignmentOpExpression<EE1, EE2, FFunctor, Policy>&);
 
 private:
     first_argument_type&            first;
     second_argument_type const&     second;
 };
 
-template <typename EE1, typename EE2, typename FFunctor>
-inline std::size_t size(const VectorScalarAssignmentOpExpression<EE1, EE2, FFunctor>& v)
+
+template <typename EE1, typename EE2, typename FFunctor, typename Policy>
+inline std::size_t size(const VectorScalarAssignmentOpExpression<EE1, EE2, FFunctor, Policy>& v)
 {
     return size(v.first);
 }
@@ -361,7 +267,7 @@ inline std::size_t size(const VectorScalarAssignmentOpExpression<EE1, EE2, FFunc
 //
 template <typename E1, typename E2>
 struct VectorVectorAssignExpression
-    : public VectorVectorAssignmentOpExpression<E1, E2, assign<typename E1::value_type, typename E2::value_type> >
+: public VectorVectorAssignmentOpExpression<E1, E2, assign<typename E1::value_type, typename E2::value_type> >
 {
     using base = VectorVectorAssignmentOpExpression<E1, E2, assign<typename E1::value_type, typename E2::value_type> >;
     VectorVectorAssignExpression(E1& v1, E2 const& v2)
@@ -375,7 +281,7 @@ struct VectorVectorAssignExpression
 //
 template <typename E1, typename E2>
 struct VectorScalarAssignmentExpression
-    : public VectorScalarAssignmentOpExpression<E1, E2, assign<typename E1::value_type, E2> >
+: public VectorScalarAssignmentOpExpression<E1, E2, assign<typename E1::value_type, E2> >
 {
     using base = VectorScalarAssignmentOpExpression<E1, E2, assign<typename E1::value_type, E2> >;
     VectorScalarAssignmentExpression(E1& v1, E2 const& v2)
@@ -383,36 +289,36 @@ struct VectorScalarAssignmentExpression
     {}
 };
 
-
 //
 // The last thing that remains to be done is to help the compiler determine
 // which AssignmentExpression it needs.
 //
 namespace detail {
 
-    template <typename Vector, typename Source, typename SourceCategory, typename VCat>
-    struct VectorAssignment {};
+template <typename Vector, typename Source, typename SourceCategory, typename VCat>
+struct VectorAssignment {};
 
-    template <typename Vector, typename Source, typename Cat>
-    struct VectorAssignment<Vector, Source, Cat, Cat>
+template <typename Vector, typename Source, typename Cat>
+struct VectorAssignment<Vector, Source, Cat, Cat>
+{
+    using type = VectorVectorAssignExpression<Vector, Source>;
+    type operator()(Vector& vector, const Source& src)
     {
-        using type = VectorVectorAssignExpression<Vector, Source>;
-        type operator()(Vector& vector, const Source& src)
-        {
-            return type(vector, src);
-        }
-    };
+        return type(vector, src);
+    }
+};
 
-    template <typename Vector, typename Source, typename VectorCategory>
-    struct VectorAssignment<Vector, Source, VectorCategory, scalar>
+template <typename Vector, typename Source, typename VectorCategory>
+struct VectorAssignment<Vector, Source, VectorCategory, scalar>
+{
+    using type = VectorScalarAssignmentExpression<Vector, Source>;
+    type operator()(Vector& vector, const Source& src)
     {
-        using type = VectorScalarAssignmentExpression<Vector, Source>;
-        type operator()(Vector& vector, const Source& src)
-        {
-            return type(vector, src);
-        }
-    };
-}
+        return type(vector, src);
+    }
+};
+
+} // end namespace
 
 //
 // Switch to select the correct AssignmentExpressionOperator
@@ -428,5 +334,6 @@ struct VectorAssignment :
     detail::VectorAssignment<Vector, Source, typename AssignShape<Vector>::type, typename AssignShape<Source>::type>
 {};
 
+} // end namespace
 
 #endif

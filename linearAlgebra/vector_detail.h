@@ -22,79 +22,14 @@
 #include <utility>
 #include <initializer_list>
 #include <stdexcept>
-#include <bitset>
 
 #include "../concepts/concepts.h"
 #include "../utils/CSVReader.h"
 #include "../utils/macros.h"
+#include "bool_vector.h"
 
 using namespace std::placeholders;
-using std::bitset;
 
-template <std::size_t N>
-class BoolVector : public bitset<N>
-{
-public:
-    using bitset<N>::all;
-    using bitset<N>::flip;
-
-    BoolVector()
-        : bitset<N>()
-    {}
-
-    template< class CharT, class Traits, class Alloc>
-    BoolVector(const std::basic_string<CharT, Traits, Alloc>& str,
-               typename std::basic_string<CharT, Traits, Alloc>::size_type pos = 0,
-               typename std::basic_string<CharT, Traits, Alloc>::size_type n =
-               std::basic_string<CharT, Traits, Alloc>::npos,
-               CharT zero = CharT('0'), CharT one = CharT('1'))
-        : bitset<N>(str, n)
-    {}
-
-    template< class CharT >
-    BoolVector(const CharT * str,
-               typename std::basic_string<CharT>::size_type n =
-               std::basic_string<CharT>::npos,
-               CharT zero = CharT('0'), CharT one = CharT('1'))
-        : bitset<N>(str, n)
-    {}
-
-    explicit operator bool() const { return all(); }
-};
-
-template <std::size_t N>
-bool All(const BoolVector<N>& vector)
-{
-    return vector.all();
-}
-
-template <std::size_t N>
-bool None(const BoolVector<N>& vector)
-{
-    return vector.none();
-}
-
-template <std::size_t N>
-bool Any(const BoolVector<N>& vector)
-{
-    return vector.any();
-}
-
-template <std::size_t N>
-BoolVector<N> operator~(const BoolVector<N>& vector)
-{
-    BoolVector<N> ret {vector};
-    ret.flip();
-    return ret;
-}
-
-template <std::size_t N>
-BoolVector<N> operator!(const BoolVector<N>& vector)
-{
-    BoolVector<N> ret {vector};
-    ret.flip();
-    return ret;
-}
 
 template <typename Derived, typename T, std::size_t N>
 struct BaseVector
@@ -102,6 +37,9 @@ struct BaseVector
     static_assert(N > 1, "BaseVector must have more than one element!");
     static_assert(Arithmetic<T>(), "BaseVector must have an arithmetic type as base!");
 
+    using size_type              = std::size_t;
+    using value_type             = T;
+    using UnderlyingType         = T;
     using reverse_iterator       = typename std::reverse_iterator<T*>;
     using const_reverse_iterator = typename std::reverse_iterator<const T*>;
 
@@ -203,6 +141,14 @@ struct BaseVector
         set(value);
         return *this;
     }
+
+    // Assignment operator for the use with template expressions
+    // template <class Other>
+    // Disable_if<Same<Other, BaseVector<Derived, T, N> >(), typename VectorAssignment<BaseVector<Derived, T, N>, Other>::type>
+    // operator=(const Other& that)
+    // {
+    //     return VectorAssignment<BaseVector<Derived, T, N>, Other>()(static_cast<BaseVector<Derived, T, N>&>(*this), that);
+    // }
 
     T* begin() { return static_cast<Derived*>(this)->begin(); }
     const T* begin()  const { return static_cast<Derived*>(this)->begin(); }
@@ -348,6 +294,13 @@ private:
     }
 
 };
+
+template <typename Derived, typename T, std::size_t N>
+inline typename BaseVector<Derived, T, N>::size_type
+size(const BaseVector<Derived, T, N>& vector)
+{
+    return vector.size();
+}
 
 template <typename T, std::size_t N>
 struct VectorClass : public BaseVector<VectorClass<T, N>, T, N>

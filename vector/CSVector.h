@@ -30,6 +30,7 @@
 #define PREFETCH_LENGTH 2
 
 using namespace Memory;
+using namespace Expression;
 
 using std::max;
 
@@ -74,7 +75,8 @@ public:
             mpStart[i] = value;
     }
 
-    CSVector(std::initializer_list<T> ilist)
+    template <typename U, typename = Enable_if<Convertible<T, U>()> >
+    CSVector(std::initializer_list<U> ilist)
         : CSVector(ilist.size())
     {
         std::copy(ilist.begin(), ilist.end(), begin());
@@ -105,6 +107,21 @@ public:
         other.mpEnd             = nullptr;
         other.mAllocationSize   = 0;
         other.mDataSize         = 0;
+    }
+
+    // Assignment operator for the use with template expressions
+    template <class Other, typename = Disable_if<Same<Other, CSVector<T> >()> >
+    CSVector(const Other& that)
+        : mAllocationSize(Expression::size(that)),
+        mDataSize(Expression::size(that)),
+        mpStart(nullptr),
+        mpEnd(nullptr)
+    {
+        mpStart = (ValueType *)Memory::aligned_alloc(__alignment, mAllocationSize*sizeof(ValueType));
+        mpEnd   = mpStart + mDataSize;
+
+        // this should do it?
+        VectorAssignment<CSVector<T>, Other>()(static_cast<CSVector<T>&>(*this), that);
     }
 
     CSVector& operator=(const CSVector& other)
