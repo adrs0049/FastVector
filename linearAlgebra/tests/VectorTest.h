@@ -15,6 +15,8 @@
 #define protected public
 #include "../Vector.h"
 
+#define REPEATS 10
+
 using namespace std;
 
 void vector_equals(Vector3d& vector, double value)
@@ -198,12 +200,38 @@ private:
             auto vec2 = getRandomVector<T, N>();
 
             // compute the to be compared results
-            auto res1 = vec1 + vec2;
+            VectorClass<T, N> res1 = vec1 + vec2;
             auto res2 = addition(vec1, vec2);
 
             for (size_t i = 0; i < N; i++)
                 TS_ASSERT_DELTA(res1[i], res2[i], tol);
         }
+
+        repeats = REPEATS;
+    }
+
+    template <class T, size_t N>
+    void additionScalarTestGeneric()
+    {
+        while (repeats --> 0)
+        {
+            auto vec1   = getRandomVector<T, N>();
+            auto scalar = getRandomNumber<T>();
+
+            // compute the to be compared results
+            VectorClass<T, N> res1 = vec1 + scalar;
+
+            // and the other way around
+            VectorClass<T, N> res3 = scalar + vec1;
+
+            for (size_t i = 0; i < N; i++)
+            {
+                TS_ASSERT_DELTA(res1[i], vec1[i] + scalar, tol);
+                TS_ASSERT_DELTA(res3[i], scalar + vec1[i], tol);
+            }
+        }
+
+        repeats = REPEATS;
     }
 
     template <class T, size_t N>
@@ -215,12 +243,38 @@ private:
             auto vec2 = getRandomVector<T, N>();
 
             // compute the to be compared results
-            auto res1 = vec1 - vec2;
+            VectorClass<T, N> res1 = vec1 - vec2;
             auto res2 = substract(vec1, vec2);
 
             for (size_t i = 0; i < N; i++)
                 TS_ASSERT_DELTA(res1[i], res2[i], tol);
         }
+
+        repeats = REPEATS;
+    }
+
+    template <class T, size_t N>
+    void substractionScalarTestGeneric()
+    {
+        while (repeats --> 0)
+        {
+            auto vec1   = getRandomVector<T, N>();
+            auto scalar = getRandomNumber<T>();
+
+            // compute the to be compared results
+            VectorClass<T, N> res1 = vec1 - scalar;
+
+            // and the other way around
+            VectorClass<T, N> res3 = scalar - vec1;
+
+            for (size_t i = 0; i < N; i++)
+            {
+                TS_ASSERT_DELTA(res1[i], vec1[i] - scalar, tol);
+                TS_ASSERT_DELTA(res3[i], scalar - vec1[i], tol);
+            }
+        }
+
+        repeats = REPEATS;
     }
 
     template <class T, size_t N>
@@ -232,12 +286,14 @@ private:
             auto vec2 = getRandomVector<T, N>();
 
             // compute the to be compared results
-            auto res1 = vec1 * vec2;
+            VectorClass<T, N> res1 = vec1 * vec2;
             auto res2 = product(vec1, vec2);
 
             for (size_t i = 0; i < N; i++)
                 TS_ASSERT_DELTA(res1[i], res2[i], tol);
         }
+
+        repeats = REPEATS;
     }
 
     template <class T, size_t N>
@@ -249,8 +305,8 @@ private:
             auto scalar = getRandomNumber<T>();
 
             // compute the to be compared results
-            auto res1 = vec1 * scalar;
-            auto res2 = scalar * vec1;
+            VectorClass<T, N> res1 = vec1 * scalar;
+            VectorClass<T, N> res2 = scalar * vec1;
             auto res3 = product(vec1, scalar);
 
             for (size_t i = 0; i < N; i++)
@@ -259,6 +315,8 @@ private:
                 TS_ASSERT_DELTA(res2[i], res3[i], tol);
             }
         }
+
+        repeats = REPEATS;
     }
 
     template <class T, size_t N>
@@ -270,12 +328,14 @@ private:
             auto vec2 = getRandomVector<T, N>();
 
             // compute the to be compared results
-            auto res1 = vec1 / vec2;
+            VectorClass<T, N> res1 = vec1 / vec2;
             auto res2 = divide(vec1, vec2);
 
             for (size_t i = 0; i < N; i++)
                 TS_ASSERT_DELTA(res1[i], res2[i], tol);
         }
+
+        repeats = REPEATS;
     }
 
     template <class T, size_t N>
@@ -287,11 +347,11 @@ private:
             auto scalar = getRandomNumber<T>();
 
             // compute the to be compared results
-            auto res1 = vec1 / scalar;
+            VectorClass<T, N> res1 = vec1 / scalar;
             auto res2 = divide(vec1, scalar);
 
             // and the other way around
-            auto res3 = scalar / vec1;
+            VectorClass<T, N> res3 = scalar / vec1;
             auto res4 = divide(scalar, vec1);
 
             for (size_t i = 0; i < N; i++)
@@ -300,6 +360,8 @@ private:
                 TS_ASSERT_DELTA(res3[i], res4[i], tol);
             }
         }
+
+        repeats = REPEATS;
     }
 
     template <class T>
@@ -314,6 +376,17 @@ private:
     }
 
     template <class T>
+    void VectorAdditionScalarTypeTest()
+    {
+        additionScalarTestGeneric<T, 2>();
+        additionScalarTestGeneric<T, 3>();
+        additionScalarTestGeneric<T, 4>();
+        additionScalarTestGeneric<T, 5>();
+        additionScalarTestGeneric<T, 6>();
+        additionScalarTestGeneric<T, 10>();
+    }
+
+    template <class T>
     void VectorSubstractionTypeTest()
     {
         substractionTestGeneric<T, 2>();
@@ -322,6 +395,17 @@ private:
         substractionTestGeneric<T, 5>();
         substractionTestGeneric<T, 6>();
         substractionTestGeneric<T, 10>();
+    }
+
+    template <class T>
+    void VectorSubstractionScalarTypeTest()
+    {
+        substractionScalarTestGeneric<T, 2>();
+        substractionScalarTestGeneric<T, 3>();
+        substractionScalarTestGeneric<T, 4>();
+        substractionScalarTestGeneric<T, 5>();
+        substractionScalarTestGeneric<T, 6>();
+        substractionScalarTestGeneric<T, 10>();
     }
 
     template <class T>
@@ -368,16 +452,20 @@ private:
         divisionScalarTestGeneric<T, 10>();
     }
 
-
 public:
 
     void setUp()
     {
-        repeats = 10;
+        repeats = REPEATS;
     }
 
     void tearDown()
     {}
+
+    void testConstruction()
+    {
+        VectorClass<double, 2> vec = getVector2d();
+    }
 
     void testAdditionGeneric()
     {
@@ -686,10 +774,6 @@ public:
         TS_ASSERT_DELTA(Norm(c2), norm2d(), tol);
         TS_ASSERT_DELTA(Norm(c3), norm3d(), tol);
         TS_ASSERT_DELTA(Norm(c4), norm4d(), tol);
-
-        TS_ASSERT_DELTA(c2.Norm2(), norm2d(), tol);
-        TS_ASSERT_DELTA(c3.Norm2(), norm3d(), tol);
-        TS_ASSERT_DELTA(c4.Norm2(), norm4d(), tol);
     }
 
     void testNorm2()
@@ -701,14 +785,6 @@ public:
         auto n2 = Normalize(c2);
         auto n3 = Normalize(c3);
         auto n4 = Normalize(c4);
-
-        c2.Normalize();
-        c3.Normalize();
-        c4.Normalize();
-
-        TS_ASSERT_DELTA(Norm(c2), 1., tol);
-        TS_ASSERT_DELTA(Norm(c3), 1., tol);
-        TS_ASSERT_DELTA(Norm(c4), 1., tol);
 
         TS_ASSERT_DELTA(Norm(n2), 1., tol);
         TS_ASSERT_DELTA(Norm(n3), 1., tol);
@@ -724,10 +800,6 @@ public:
         TS_ASSERT_THROWS(Normalize(c2), std::runtime_error);
         TS_ASSERT_THROWS(Normalize(c3), std::runtime_error);
         TS_ASSERT_THROWS(Normalize(c4), std::runtime_error);
-
-        TS_ASSERT_THROWS(c2.Normalize(), std::runtime_error);
-        TS_ASSERT_THROWS(c3.Normalize(), std::runtime_error);
-        TS_ASSERT_THROWS(c4.Normalize(), std::runtime_error);
 
         TS_ASSERT_DELTA(Norm(c2), 0., tol);
         TS_ASSERT_DELTA(Norm(c3), 0., tol);
@@ -818,9 +890,9 @@ public:
         Vector4d c4 {0,0,0,0};
         Vector4d m4 {0,0,0,0};
 
-        auto r2 = c2 - m2;
-        auto r3 = c3 - m3;
-        auto r4 = c4 - m4;
+        Vector2d r2 = c2 - m2;
+        Vector3d r3 = c3 - m3;
+        Vector4d r4 = c4 - m4;
 
         TS_ASSERT_EQUALS(r2.x, 0);
         TS_ASSERT_EQUALS(r2.y, 0);
@@ -1112,5 +1184,3 @@ public:
     }
 
 };
-
-

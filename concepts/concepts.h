@@ -71,6 +71,12 @@ constexpr bool Pointer()
     return std::is_pointer<T>::value;
 }
 
+template<typename Base, typename Derived>
+constexpr bool BaseOf()
+{
+    return std::is_base_of<Base, Derived>::value;
+}
+
 template<typename T>
 constexpr bool Floating_Point()
 {

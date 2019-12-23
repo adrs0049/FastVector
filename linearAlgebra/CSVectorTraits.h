@@ -33,6 +33,9 @@ template <typename Value> struct Vector : NonScalar {};
 template <typename T>
 class CSVector;
 
+template <typename Derived, typename T, std::size_t N>
+struct BaseVector;
+
 // to avoid ambiguity put all expression support into its own namespace
 namespace Expression
 {
@@ -54,6 +57,12 @@ struct AssignShapeHelper
 
 template <typename Value>
 struct AssignShapeHelper<CSVector<Value> >
+{
+    using type = Vector<typename AssignShape<Value>::type>;
+};
+
+template <typename Derived, typename Value, std::size_t N>
+struct AssignShapeHelper<BaseVector<Derived, Value, N> >
 {
     using type = Vector<typename AssignShape<Value>::type>;
 };

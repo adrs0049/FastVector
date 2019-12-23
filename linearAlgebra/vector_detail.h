@@ -26,13 +26,20 @@
 #include "../concepts/concepts.h"
 #include "../utils/CSVReader.h"
 #include "../utils/macros.h"
+
+#include "CSVectorTraits.h"
+#include "CSOperations.h"
+#include "CSExpression.h"
+#include "VectorOperations.h"
+
 #include "bool_vector.h"
 
 using namespace std::placeholders;
+using namespace Expression;
 
 
 template <typename Derived, typename T, std::size_t N>
-struct BaseVector
+struct BaseVector : public VectorExpression<BaseVector<Derived, T, N>>
 {
     static_assert(N > 1, "BaseVector must have more than one element!");
     static_assert(Arithmetic<T>(), "BaseVector must have an arithmetic type as base!");
@@ -92,6 +99,15 @@ struct BaseVector
         std::copy(ilist.begin(), ilist.end(), begin());
     }
 
+    // Assignment operator for the use with template expressions
+    template <class Other, typename = Disable_if<
+        Some(Same<Other, BaseVector<Derived, T, N> >(),
+        BaseOf<BaseVector<Derived, T, N>, Other >()) > > // We need this otherwise this turns on when the derived type is assigned!
+    BaseVector(const Other& that)
+    {
+        VectorAssignment<BaseVector<Derived, T, N>, Other>()(static_cast<BaseVector<Derived, T, N>&>(*this), that);
+    }
+
     template <typename U,
               typename = Enable_if<All(Convertible<U, T>())> >
     void assign(const U& value)
@@ -116,7 +132,8 @@ struct BaseVector
                std::to_string(N) + ".");
     }
 
-    void assign(std::initializer_list<T> ilist)
+    template <typename U, typename = Enable_if<Convertible<T, U>()> >
+    void assign(std::initializer_list<U> ilist)
     {
         ASSERT(ilist.size() <= N, "Initializer list with size " +
                std::to_string(ilist.size()) + " is larger than the container" +
@@ -143,12 +160,14 @@ struct BaseVector
     }
 
     // Assignment operator for the use with template expressions
-    // template <class Other>
-    // Disable_if<Same<Other, BaseVector<Derived, T, N> >(), typename VectorAssignment<BaseVector<Derived, T, N>, Other>::type>
-    // operator=(const Other& that)
-    // {
-    //     return VectorAssignment<BaseVector<Derived, T, N>, Other>()(static_cast<BaseVector<Derived, T, N>&>(*this), that);
-    // }
+    template <class Other>
+    Disable_if<Some(Same<Other, BaseVector<Derived, T, N> >(),
+        BaseOf<BaseVector<Derived, T, N>, Other >()),
+        typename VectorAssignment<BaseVector<Derived, T, N>, Other>::type>
+    operator=(const Other& that)
+    {
+        return VectorAssignment<BaseVector<Derived, T, N>, Other>()(static_cast<BaseVector<Derived, T, N>&>(*this), that);
+    }
 
     T* begin() { return static_cast<Derived*>(this)->begin(); }
     const T* begin()  const { return static_cast<Derived*>(this)->begin(); }
@@ -215,36 +234,6 @@ struct BaseVector
         return operator[](size() - 1);
     }
 
-    BaseVector& operator+=(const BaseVector& rhs)
-    {
-        return operator_base(rhs, std::plus<T>());
-    }
-
-    BaseVector& operator-=(const BaseVector& rhs)
-    {
-        return operator_base(rhs, std::minus<T>());
-    }
-
-    BaseVector& operator*=(const T& scalar)
-    {
-        return operator_scalar_base(scalar, std::multiplies<T>());
-    }
-
-    BaseVector& operator/=(const T& scalar)
-    {
-        return operator_scalar_base(scalar, std::divides<T>());
-    }
-
-    BaseVector& operator*=(const BaseVector& rhs)
-    {
-        return operator_base(rhs, std::multiplies<T>());
-    }
-
-    BaseVector& operator/=(const BaseVector& rhs)
-    {
-        return operator_base(rhs, std::divides<T>());
-    }
-
     void swap(BaseVector& other)
     {
         std::swap_ranges(begin(), end(), other.begin());
@@ -259,43 +248,6 @@ struct BaseVector
     {
         set(T(0));
     }
-
-    auto Norm() const
-    {
-        return Norm2();
-    }
-
-    auto Norm2() const
-    {
-        return std::sqrt(std::inner_product(cbegin(), cend(), cbegin(), T(0)));
-    }
-
-    T Normalize()
-    {
-        auto norm {Norm2()};
-        if (!std::isnormal(norm))
-            throw std::overflow_error("Divide by zero exception!");
-
-        *this /= norm;
-        return norm;
-    }
-
-private:
-
-    template <class Function>
-    BaseVector& operator_base(const BaseVector& rhs, Function f)
-    {
-        std::transform(begin(), end(), rhs.cbegin(), begin(), f);
-        return *this;
-    }
-
-    template <class Function>
-    BaseVector& operator_scalar_base(const T scalar, Function f)
-    {
-        std::transform(begin(), end(), begin(), std::bind2nd(f, scalar));
-        return *this;
-    }
-
 };
 
 template <typename Derived, typename T, std::size_t N>
@@ -343,6 +295,11 @@ struct VectorClass : public BaseVector<VectorClass<T, N>, T, N>
         : BaseVector<VectorClass<T, N>, T, N>(first, last, pos)
     {}
 
+    template <class Other, typename = Disable_if<Same<Other, VectorClass<T, N> >() > >
+    VectorClass(const Other& that)
+        : BaseVector<VectorClass<T, N>, T, N>(that)
+    {}
+
     VectorClass& operator=(const VectorClass& vector)
     {
         BaseVector<VectorClass<T, N>, T, N>::operator = (vector);
@@ -359,6 +316,14 @@ struct VectorClass : public BaseVector<VectorClass<T, N>, T, N>
     {
         BaseVector<VectorClass<T, N>, T, N>::operator = (value);
         return *this;
+    }
+
+    // Assignment operator for the use with template expressions
+    template <class Other>
+    Disable_if<Same<Other, VectorClass<T, N> >(), typename VectorAssignment<VectorClass<T, N>, Other>::type>
+    operator=(const Other& that)
+    {
+        return VectorAssignment<VectorClass<T, N>, Other>()(static_cast<VectorClass<T, N>&>(*this), that);
     }
 
     ~VectorClass() {}
@@ -415,6 +380,11 @@ struct VectorClass<T, 2> : public BaseVector<VectorClass<T, 2>, T, 2>
         : BaseVector<VectorClass<T, 2>, T, 2>(values)
     {}
 
+    template <class Other, typename = Disable_if<Same<Other, VectorClass<T, 2> >() > >
+    VectorClass(const Other& that)
+        : BaseVector<VectorClass<T, 2>, T, 2>(that)
+    {}
+
     VectorClass& operator=(const VectorClass& vector)
     {
         BaseVector<VectorClass<T, 2>, T, 2>::operator = (vector);
@@ -431,6 +401,14 @@ struct VectorClass<T, 2> : public BaseVector<VectorClass<T, 2>, T, 2>
     {
         BaseVector<VectorClass<T, 2>, T, 2>::operator = (value);
         return *this;
+    }
+
+    // Assignment operator for the use with template expressions
+    template <class Other>
+    Disable_if<Same<Other, VectorClass<T, 2> >(), typename VectorAssignment<VectorClass<T, 2>, Other>::type>
+    operator=(const Other& that)
+    {
+        return VectorAssignment<VectorClass<T, 2>, Other>()(static_cast<VectorClass<T, 2>&>(*this), that);
     }
 
     VectorClass(T _x, T _y)
@@ -496,6 +474,11 @@ struct VectorClass<T, 3> : public BaseVector<VectorClass<T, 3>, T, 3>
     template <class InputIt>
     VectorClass(InputIt first, InputIt last)
         : BaseVector<VectorClass<T, 3>, T, 3>(first, last)
+    {}
+
+    template <class Other, typename = Disable_if<Same<Other, VectorClass<T, 2> >() > >
+    VectorClass(const Other& that)
+        : BaseVector<VectorClass<T, 3>, T, 3>(that)
     {}
 
     VectorClass& operator=(const VectorClass& vector)
@@ -584,6 +567,11 @@ struct VectorClass<T, 4> : public BaseVector<VectorClass<T, 4>, T, 4>
         : BaseVector<VectorClass<T, 4>, T, 4>(first, last, pos)
     {}
 
+    template <class Other, typename = Disable_if<Same<Other, VectorClass<T, 2> >() > >
+    VectorClass(const Other& that)
+        : BaseVector<VectorClass<T, 4>, T, 4>(that)
+    {}
+
     VectorClass& operator=(const VectorClass& vector)
     {
         BaseVector<VectorClass<T, 4>, T, 4>::operator = (vector);
@@ -670,32 +658,32 @@ inline T rotationDirection(const T angle, const T targetAngle)
 }
 
 // Numerical methods of vectors
-template <typename T, std::size_t N>
-auto Norm2(const VectorClass<T, N>& vector)
+template <typename Derived, typename T, std::size_t N>
+auto Norm2(const BaseVector<Derived, T, N>& vector)
 {
     return std::sqrt(std::inner_product(vector.cbegin(), vector.cend(),
                                         vector.cbegin(), T(0)));
 }
 
-template <typename T, std::size_t N>
-auto Norm(const VectorClass<T, N>& vector)
+template <typename Derived, typename T, std::size_t N>
+auto Norm(const BaseVector<Derived, T, N>& vector)
 {
     return Norm2(vector);
 }
 
-template <typename T, std::size_t N>
-auto Norm2Squared(const VectorClass<T, N>& vector)
+template <typename Derived, typename T, std::size_t N>
+auto Norm2Squared(const BaseVector<Derived, T, N>& vector)
 {
     return std::inner_product(vector.cbegin(), vector.cend(),
                               vector.cbegin(), T(0));
 }
 
-template <typename T, std::size_t N>
-auto Normalize(const VectorClass<T, N>& vector)
+template <typename Derived, typename T, std::size_t N>
+Derived Normalize(const BaseVector<Derived, T, N>& vector)
 {
-    VectorClass<T, N> ret {vector};
+    Derived ret {vector};
 
-    auto norm {Norm(vector)};
+    auto norm = Norm(vector);
     if (!std::isnormal(norm))
         throw std::overflow_error("Divide by zero exception!");
 
@@ -707,7 +695,7 @@ auto Normalize(const VectorClass<T, N>& vector)
 template <typename T, std::size_t N>
 auto Invert(const VectorClass<T, N>& vector)
 {
-    return vector * T(-1);
+    return -vector;
 }
 
 template <typename T, std::size_t N>
@@ -718,7 +706,6 @@ auto UnitVector(const VectorClass<T, N>& vector)
         return vector;
 
     return vector / norm;
-    //return Normalize(vector);
 }
 
 // If condition true select lhs, otherwise rhs
@@ -809,95 +796,6 @@ VectorClass<T, 3> Cross(const VectorClass<T, 3>& lhs,
     return {lhs.y * rhs.z - lhs.z * rhs.y,
             lhs.z * rhs.x - lhs.x * rhs.z,
             lhs.x * rhs.y - lhs.y * rhs.x};
-}
-
-// mathematical operators
-template <typename T, std::size_t N>
-VectorClass<T, N> operator+(const VectorClass<T, N>& lhs,
-                            const VectorClass<T, N>& rhs)
-{
-    VectorClass<T, N> ret {lhs};
-    ret += rhs;
-    return ret;
-}
-
-template <typename T, std::size_t N>
-VectorClass<T, N> operator-(const VectorClass<T, N>& lhs,
-                            const VectorClass<T, N>& rhs)
-{
-    VectorClass<T, N> ret {lhs};
-    ret -= rhs;
-    return ret;
-}
-
-template <typename T, std::size_t N>
-VectorClass<T, N> operator-(const VectorClass<T, N>& vector)
-{
-    VectorClass<T, N> ret;
-    std::transform(vector.cbegin(), vector.cend(), ret.begin(), std::negate<T>());
-    return ret;
-}
-
-template <typename T, std::size_t N>
-VectorClass<T, N> operator*(const VectorClass<T, N>& lhs,
-                            const VectorClass<T, N>& rhs)
-{
-    VectorClass<T, N> ret {lhs};
-    ret *= rhs;
-    return ret;
-}
-
-template <typename T, typename U, std::size_t N,
-          typename = Enable_if<All(Convertible<U, T>())> >
-VectorClass<T, N> operator*(const VectorClass<T, N>& lhs, const U& rhs)
-{
-    VectorClass<T, N> ret {lhs};
-    ret *= rhs;
-    return ret;
-}
-
-template <typename T, typename U, std::size_t N,
-          typename = Enable_if<All(Convertible<U, T>())> >
-VectorClass<T, N> operator*(const U& lhs, const VectorClass<T, N>& rhs)
-{
-    return rhs * lhs;
-}
-
-template <typename T, std::size_t N>
-VectorClass<T, N> operator/(const VectorClass<T, N>& lhs,
-                            const VectorClass<T, N>& rhs)
-{
-    VectorClass<T, N> ret {lhs};
-    ret /= rhs;
-    return ret;
-}
-
-template <typename T, typename U, std::size_t N,
-          typename = Enable_if<All(Convertible<U, T>())> >
-VectorClass<T, N> operator/(const VectorClass<T, N>& lhs, const U& rhs)
-{
-    VectorClass<T, N> ret {lhs};
-    ret /= rhs;
-    return ret;
-}
-
-template <typename T, typename U, std::size_t N,
-          typename = Enable_if<All(Convertible<U, T>())> >
-VectorClass<T, N> operator/(const U& lhs, const VectorClass<T, N>& rhs)
-{
-    VectorClass<T, N> ret (lhs);
-    ret /= rhs;
-    return ret;
-}
-
-// other math functions
-template <typename T, std::size_t N>
-VectorClass<T, N> abs(const VectorClass<T, N>& vector)
-{
-    VectorClass<T, N> ret;
-    std::transform(vector.cbegin(), vector.cend(), ret.begin(),
-                   static_cast<T (*)(T)>(&std::abs));
-    return ret;
 }
 
 template <typename T, std::size_t N>
@@ -1187,6 +1085,12 @@ auto Angle2(const VectorClass<T, 3>& a, const VectorClass<T, 3>& b)
     auto vec1 = n2 * a - n1 * b;
     auto vec2 = n2 * a + n1 * b;
     return 2. * atan2(Norm(vec1), Norm(vec2));
+}
+
+template <typename T, std::size_t N>
+auto EuclideanDistance(const VectorClass<T, N>& a, const VectorClass<T, N>& b)
+{
+    return Norm(a - b);
 }
 
 // input and output
