@@ -105,7 +105,6 @@ add_subdirectory(allocator)
 add_subdirectory(linearAlgebra)
 add_subdirectory(concepts)
 add_subdirectory(utils)
-add_subdirectory(vector)
 
 include_directories(${INCLUDES})
 
