@@ -661,43 +661,61 @@ inline T rotationDirection(const T angle, const T targetAngle)
 
 // Numerical methods of vectors
 template <typename Derived, typename T, std::size_t N>
-auto Norm2(const BaseConstantVector<Derived, T, N>& vector)
+auto inline Norm2(const BaseConstantVector<Derived, T, N>& vector)
 {
     return reduction<N, two_norm_functor, T>::apply(vector);
 }
 
-template <typename Derived, typename T, std::size_t N>
-auto Norm(const BaseConstantVector<Derived, T, N>& vector)
-{
-    return Norm2(vector);
-}
+// template <typename Derived, typename T, std::size_t N>
+// auto inline Norm(const BaseConstantVector<Derived, T, N>& vector)
+// {
+//     return Norm2(vector);
+// }
 
 template <typename T, std::size_t N>
-auto Norm2Squared(const ConstantVector<T, N>& vector)
+auto inline Norm2Squared(const ConstantVector<T, N>& vector)
 {
     return reduction<N, unary_dot, T>::apply(vector);
 }
 
 template <typename T>
-auto Norm2Squared(const ConstantVector<T, 2>& vector)
+auto inline Norm(const ConstantVector<T, 2>& vector)
+{
+    return sqrt(Norm2Squared(vector));
+}
+
+template <typename T>
+auto inline Norm(const ConstantVector<T, 3>& vector)
+{
+    return sqrt(Norm2Squared(vector));
+}
+
+template <typename T>
+auto inline Norm(const ConstantVector<T, 4>& vector)
+{
+    return sqrt(Norm2Squared(vector));
+}
+
+template <typename T>
+auto inline Norm2Squared(const ConstantVector<T, 2>& vector)
 {
     return vector.x * vector.x + vector.y * vector.y;
 }
 
 template <typename T>
-auto Norm2Squared(const ConstantVector<T, 3>& vector)
+auto inline Norm2Squared(const ConstantVector<T, 3>& vector)
 {
     return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
 }
 
 template <typename T>
-auto Norm2Squared(const ConstantVector<T, 4>& vector)
+auto inline Norm2Squared(const ConstantVector<T, 4>& vector)
 {
     return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z + vector.w * vector.w;
 }
 
 template <typename Derived, typename T, std::size_t N>
-Derived Normalize(const BaseConstantVector<Derived, T, N>& vector)
+Derived inline Normalize(const BaseConstantVector<Derived, T, N>& vector)
 {
     auto norm = Norm(vector);
     if (!std::isnormal(norm))

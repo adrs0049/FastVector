@@ -12,9 +12,17 @@
 #include "VectorTraits.h"
 #include "VectorFunctors.h"
 #include "VectorExpression.h"
+#include "VectorReduction.h"
 
 
 using namespace Expression;
+
+template <typename E1>
+inline auto Norm(const VectorExpression<E1>& e1)
+{
+    using value_type = typename E1::value_type;
+    return reduction<4, two_norm_functor, value_type>::apply(static_cast<const E1&>(e1));
+}
 
 template <typename E1, typename E2,
           typename = Enable_if<Scalar<E2>()> >

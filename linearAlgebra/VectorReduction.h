@@ -235,6 +235,9 @@ struct reduction
         const size_type N        = size(v);
         const size_type no_loops = N / UNROLL;
 
+        // std::cout << "Unroll: " << Unroll << std::endl;
+        // std::cout << "N:" << N << " loops:" << no_loops << std::endl;
+
         Functor::init(result);
 
         //#pragma omp parallel
