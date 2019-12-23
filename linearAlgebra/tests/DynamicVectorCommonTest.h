@@ -8,7 +8,7 @@
 
 #define private public
 #define protected public
-#include "CSVector.h"
+#include "DynamicVector.h"
 
 using namespace std;
 

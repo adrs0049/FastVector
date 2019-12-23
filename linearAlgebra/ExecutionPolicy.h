@@ -11,8 +11,8 @@
 #define CS_EXECUTION_POLICY_H
 
 #include <cstddef>
-#include "CSOperations.h"
-#include "CSVectorTraits.h"
+#include "VectorTraits.h"
+#include "VectorOperations.h"
 #include "LoopUnroll.h"
 
 

@@ -27,9 +27,9 @@
 #include "../utils/CSVReader.h"
 #include "../utils/macros.h"
 
-#include "CSVectorTraits.h"
-#include "CSOperations.h"
-#include "CSExpression.h"
+#include "VectorTraits.h"
+#include "VectorOperations.h"
+#include "VectorExpression.h"
 #include "VectorOperations.h"
 
 #include "bool_vector.h"

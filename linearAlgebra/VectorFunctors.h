@@ -7,12 +7,10 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CS_OPERATIONS_H
-#define CS_OPERATIONS_H
+#ifndef VECTOR_FUNCTORS_H
+#define VECTOR_FUNCTORS_H
 
 #include <functional>
-#include <iostream>
-
 
 template<class T> struct Assign
 {

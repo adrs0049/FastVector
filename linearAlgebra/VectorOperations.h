@@ -6,16 +6,15 @@
 //    Created:  2016-04-20                                                    //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-
 #ifndef VECTOR_OPERATIONS_H
 #define VECTOR_OPERATIONS_H
 
-#include "CSVectorTraits.h"
-#include "CSOperations.h"
-#include "CSExpression.h"
+#include "VectorTraits.h"
+#include "VectorFunctors.h"
+#include "VectorExpression.h"
+
 
 using namespace Expression;
-
 
 template <typename E1, typename E2,
           typename = Enable_if<Scalar<E2>()> >

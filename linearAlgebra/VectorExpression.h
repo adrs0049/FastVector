@@ -15,11 +15,11 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "CSOperations.h"
-#include "CSVectorTraits.h"
+#include "VectorTraits.h"
 #include "ExecutionPolicy.h"
 #include "concepts.h"
 #include "type_info.h"
+
 
 namespace Expression
 {

@@ -23,9 +23,9 @@
 #include "macros.h"
 #include "concepts.h"
 
-#include "CSVectorTraits.h"
-#include "CSOperations.h"
-#include "CSExpression.h"
+#include "VectorTraits.h"
+#include "VectorOperations.h"
+#include "VectorExpression.h"
 #include "VectorOperations.h"
 
 #define PREFETCH_LENGTH 2

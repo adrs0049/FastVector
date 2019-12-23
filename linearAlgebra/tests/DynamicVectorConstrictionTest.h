@@ -8,11 +8,11 @@
 #include <memory>
 #include <functional>
 
-#include "CSVectorCommonTest.h"
+#include "DynamicVectorCommonTest.h"
 
 #define private public
 #define protected public
-#include "CSVector.h"
+#include "DynamicVector.h"
 
 using namespace std;
 
