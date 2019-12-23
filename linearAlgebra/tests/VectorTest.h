@@ -99,9 +99,9 @@ private:
 
     // some templated helpers
     template <class T, size_t N>
-    VectorClass<T, N> getRandomVector()
+    ConstantVector<T, N> getRandomVector()
     {
-        VectorClass<T, N> ret;
+        ConstantVector<T, N> ret;
         std::random_device rnd;
         std::mt19937 engine(rnd());
         std::uniform_real_distribution<T> dist(-1e3, 1e3);
@@ -121,72 +121,72 @@ private:
     }
 
     template <class T, size_t N>
-    T dotProduct(const VectorClass<T, N>& lhs, const VectorClass<T, N>& rhs)
+    T dotProduct(const ConstantVector<T, N>& lhs, const ConstantVector<T, N>& rhs)
     {
         return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), T(0));
     }
 
     template <class T, size_t N>
-    T getNorm(const VectorClass<T, N>& lhs)
+    T getNorm(const ConstantVector<T, N>& lhs)
     {
         return sqrt(dotProduct(lhs, lhs));
     }
 
     template <class T, size_t N>
-    VectorClass<T, N> addition(const VectorClass<T, N>& lhs, const VectorClass<T, N>& rhs)
+    ConstantVector<T, N> addition(const ConstantVector<T, N>& lhs, const ConstantVector<T, N>& rhs)
     {
-        VectorClass<T, N> ret;
+        ConstantVector<T, N> ret;
         std::transform(lhs.begin(), lhs.end(), rhs.begin(), ret.begin(), std::plus<T>());
         return ret;
     }
 
     template <class T, size_t N>
-    VectorClass<T, N> substract(const VectorClass<T, N>& lhs, const VectorClass<T, N>& rhs)
+    ConstantVector<T, N> substract(const ConstantVector<T, N>& lhs, const ConstantVector<T, N>& rhs)
     {
-        VectorClass<T, N> ret;
+        ConstantVector<T, N> ret;
         std::transform(lhs.begin(), lhs.end(), rhs.begin(), ret.begin(), std::minus<T>());
         return ret;
     }
 
     template <class T, size_t N>
-    VectorClass<T, N> product(const VectorClass<T, N>& lhs, const T& rhs)
+    ConstantVector<T, N> product(const ConstantVector<T, N>& lhs, const T& rhs)
     {
-        VectorClass<T, N> ret;
+        ConstantVector<T, N> ret;
         std::transform(lhs.begin(), lhs.end(), ret.begin(),
                        std::bind1st(std::multiplies<T>(), rhs));
         return ret;
     }
 
     template <class T, size_t N>
-    VectorClass<T, N> product(const VectorClass<T, N>& lhs, const VectorClass<T, N>& rhs)
+    ConstantVector<T, N> product(const ConstantVector<T, N>& lhs, const ConstantVector<T, N>& rhs)
     {
-        VectorClass<T, N> ret;
+        ConstantVector<T, N> ret;
         std::transform(lhs.begin(), lhs.end(), rhs.begin(), ret.begin(), std::multiplies<T>());
         return ret;
     }
 
     template <class T, size_t N>
-    VectorClass<T, N> divide(const VectorClass<T, N>& lhs, const T& rhs)
+    ConstantVector<T, N> divide(const ConstantVector<T, N>& lhs, const T& rhs)
     {
-        VectorClass<T, N> ret;
+        ConstantVector<T, N> ret;
         std::transform(lhs.begin(), lhs.end(), ret.begin(),
                        std::bind2nd(std::divides<T>(), rhs));
         return ret;
     }
 
     template <class T, size_t N>
-    VectorClass<T, N> divide(const T& lhs, const VectorClass<T, N>& rhs)
+    ConstantVector<T, N> divide(const T& lhs, const ConstantVector<T, N>& rhs)
     {
-        VectorClass<T, N> ret;
+        ConstantVector<T, N> ret;
         std::transform(rhs.begin(), rhs.end(), ret.begin(),
                        std::bind1st(std::divides<T>(), lhs));
         return ret;
     }
 
     template <class T, size_t N>
-    VectorClass<T, N> divide(const VectorClass<T, N>& lhs, const VectorClass<T, N>& rhs)
+    ConstantVector<T, N> divide(const ConstantVector<T, N>& lhs, const ConstantVector<T, N>& rhs)
     {
-        VectorClass<T, N> ret;
+        ConstantVector<T, N> ret;
         std::transform(lhs.begin(), lhs.end(), rhs.begin(), ret.begin(), std::divides<T>());
         return ret;
     }
@@ -200,7 +200,7 @@ private:
             auto vec2 = getRandomVector<T, N>();
 
             // compute the to be compared results
-            VectorClass<T, N> res1 = vec1 + vec2;
+            ConstantVector<T, N> res1 = vec1 + vec2;
             auto res2 = addition(vec1, vec2);
 
             for (size_t i = 0; i < N; i++)
@@ -219,10 +219,10 @@ private:
             auto scalar = getRandomNumber<T>();
 
             // compute the to be compared results
-            VectorClass<T, N> res1 = vec1 + scalar;
+            ConstantVector<T, N> res1 = vec1 + scalar;
 
             // and the other way around
-            VectorClass<T, N> res3 = scalar + vec1;
+            ConstantVector<T, N> res3 = scalar + vec1;
 
             for (size_t i = 0; i < N; i++)
             {
@@ -243,7 +243,7 @@ private:
             auto vec2 = getRandomVector<T, N>();
 
             // compute the to be compared results
-            VectorClass<T, N> res1 = vec1 - vec2;
+            ConstantVector<T, N> res1 = vec1 - vec2;
             auto res2 = substract(vec1, vec2);
 
             for (size_t i = 0; i < N; i++)
@@ -262,10 +262,10 @@ private:
             auto scalar = getRandomNumber<T>();
 
             // compute the to be compared results
-            VectorClass<T, N> res1 = vec1 - scalar;
+            ConstantVector<T, N> res1 = vec1 - scalar;
 
             // and the other way around
-            VectorClass<T, N> res3 = scalar - vec1;
+            ConstantVector<T, N> res3 = scalar - vec1;
 
             for (size_t i = 0; i < N; i++)
             {
@@ -286,7 +286,7 @@ private:
             auto vec2 = getRandomVector<T, N>();
 
             // compute the to be compared results
-            VectorClass<T, N> res1 = vec1 * vec2;
+            ConstantVector<T, N> res1 = vec1 * vec2;
             auto res2 = product(vec1, vec2);
 
             for (size_t i = 0; i < N; i++)
@@ -305,8 +305,8 @@ private:
             auto scalar = getRandomNumber<T>();
 
             // compute the to be compared results
-            VectorClass<T, N> res1 = vec1 * scalar;
-            VectorClass<T, N> res2 = scalar * vec1;
+            ConstantVector<T, N> res1 = vec1 * scalar;
+            ConstantVector<T, N> res2 = scalar * vec1;
             auto res3 = product(vec1, scalar);
 
             for (size_t i = 0; i < N; i++)
@@ -328,7 +328,7 @@ private:
             auto vec2 = getRandomVector<T, N>();
 
             // compute the to be compared results
-            VectorClass<T, N> res1 = vec1 / vec2;
+            ConstantVector<T, N> res1 = vec1 / vec2;
             auto res2 = divide(vec1, vec2);
 
             for (size_t i = 0; i < N; i++)
@@ -347,11 +347,11 @@ private:
             auto scalar = getRandomNumber<T>();
 
             // compute the to be compared results
-            VectorClass<T, N> res1 = vec1 / scalar;
+            ConstantVector<T, N> res1 = vec1 / scalar;
             auto res2 = divide(vec1, scalar);
 
             // and the other way around
-            VectorClass<T, N> res3 = scalar / vec1;
+            ConstantVector<T, N> res3 = scalar / vec1;
             auto res4 = divide(scalar, vec1);
 
             for (size_t i = 0; i < N; i++)
@@ -464,7 +464,7 @@ public:
 
     void testConstruction()
     {
-        VectorClass<double, 2> vec = getVector2d();
+        ConstantVector<double, 2> vec = getVector2d();
     }
 
     void testAdditionGeneric()

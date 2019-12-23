@@ -31,7 +31,7 @@ using namespace std::placeholders;
 namespace BasicDatatypes {
 
 template <typename Derived, typename T, std::size_t N>
-    void swap(BaseVector<Derived, T, N>& lhs, BaseVector<Derived, T, N>& rhs);
+    void swap(BaseConstantVector<Derived, T, N>& lhs, BaseConstantVector<Derived, T, N>& rhs);
 
 template <typename T, std::size_t ORDER>
 struct Matrix_init
@@ -521,7 +521,7 @@ public:
     static Matrix rotate_x(T angle);
     static Matrix rotate_y(T angle);
     static Matrix rotate_z(T angle);
-    static Matrix rotate(VectorClass<T, 3> axis, T angle);
+    static Matrix rotate(ConstantVector<T, 3> axis, T angle);
 
     static Matrix scale(T f);
     static Matrix scale(T fx, T fy, T fz);
@@ -573,7 +573,7 @@ Matrix<T, 3, 3> Matrix<T, 3, 3>::rotate_z(T angle)
 }
 
 template <class T>
-Matrix<T, 3, 3> Matrix<T, 3, 3>::rotate(VectorClass<T, 3> axis, T angle)
+Matrix<T, 3, 3> Matrix<T, 3, 3>::rotate(ConstantVector<T, 3> axis, T angle)
 {
     T c = std::cos(angle);
     T s = std::sin(angle);
@@ -684,10 +684,10 @@ operator/(const T factor, const MatrixBase<Derived, T, N, M>& m)
 }
 
 template <typename Derived, typename T, std::size_t N, std::size_t M>
-VectorClass<T, N>
-operator*(const MatrixBase<Derived, T, N, M>& m, const VectorClass<T, M>& vector)
+ConstantVector<T, N>
+operator*(const MatrixBase<Derived, T, N, M>& m, const ConstantVector<T, M>& vector)
 {
-    VectorClass<T, N> r;
+    ConstantVector<T, N> r;
     for (std::size_t i = 0; i < N; ++i)
         for (std::size_t j = 0; j < M; ++j)
             r[i] += m(i, j) * vector[j];
@@ -695,10 +695,10 @@ operator*(const MatrixBase<Derived, T, N, M>& m, const VectorClass<T, M>& vector
 }
 
 template <typename Derived, typename T, std::size_t N, std::size_t M>
-VectorClass<T, M>
-operator*(const VectorClass<T, N>& vector, const MatrixBase<Derived, T, N, M>& m)
+ConstantVector<T, M>
+operator*(const ConstantVector<T, N>& vector, const MatrixBase<Derived, T, N, M>& m)
 {
-    VectorClass<T, N> r;
+    ConstantVector<T, N> r;
     for (std::size_t i = 0; i < M; ++i)
         for (std::size_t j = 0; j < N; ++j)
             r[i] += m(j, i) * vector[j];

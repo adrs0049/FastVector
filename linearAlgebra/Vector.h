@@ -31,7 +31,7 @@
 // We cant define them earlier as they require Transformations to be defined
 //
 template <typename T, typename = Enable_if<Floating_Point<T>()> >
-auto Rotate(const VectorClass<T, 3>& vector, VectorClass<T, 3> axis, const T angle)
+auto Rotate(const ConstantVector<T, 3>& vector, ConstantVector<T, 3> axis, const T angle)
 {
     // TODO in this case we dont have to assemble the inverse
     auto rotate = BasicDatatypes::Transform<T>::rotate(axis, angle);
@@ -39,56 +39,56 @@ auto Rotate(const VectorClass<T, 3>& vector, VectorClass<T, 3> axis, const T ang
 }
 
 template <typename T, typename = Enable_if<Floating_Point<T>()> >
-auto Rotate_x(const VectorClass<T, 3>& vector, const T angle)
+auto Rotate_x(const ConstantVector<T, 3>& vector, const T angle)
 {
     auto rotate = BasicDatatypes::Transform<T>::rotate_x(angle);
     return Apply(rotate, vector);
 }
 
 template <typename T, typename = Enable_if<Floating_Point<T>()> >
-auto Rotate_y(const VectorClass<T, 3>& vector, const T angle)
+auto Rotate_y(const ConstantVector<T, 3>& vector, const T angle)
 {
     auto rotate = BasicDatatypes::Transform<T>::rotate_y(angle);
     return Apply(rotate, vector);
 }
 
 template <typename T, typename = Enable_if<Floating_Point<T>()> >
-auto Rotate_z(const VectorClass<T, 3>& vector, const T angle)
+auto Rotate_z(const ConstantVector<T, 3>& vector, const T angle)
 {
     auto rotate = BasicDatatypes::Transform<T>::rotate_z(angle);
     return Apply(rotate, vector);
 }
 
 // useful shortcuts
-using Vector2 = VectorClass<double, 2>;
-using Vector3 = VectorClass<double, 3>;
-using Vector4 = VectorClass<double, 4>;
+using Vector2 = ConstantVector<double, 2>;
+using Vector3 = ConstantVector<double, 3>;
+using Vector4 = ConstantVector<double, 4>;
 
-using Vector2d = VectorClass<double, 2>;
-using Vector3d = VectorClass<double, 3>;
-using Vector4d = VectorClass<double, 4>;
+using Vector2d = ConstantVector<double, 2>;
+using Vector3d = ConstantVector<double, 3>;
+using Vector4d = ConstantVector<double, 4>;
 
 // uncomment when old vector class can be removed
 // this should be float
-using Vector2f = VectorClass<double, 2>;
-using Vector3f = VectorClass<double, 3>;
-using Vector4f = VectorClass<double, 4>;
+using Vector2f = ConstantVector<double, 2>;
+using Vector3f = ConstantVector<double, 3>;
+using Vector4f = ConstantVector<double, 4>;
 
-using Vector2i = VectorClass<int, 2>;
-using Vector3i = VectorClass<int, 3>;
-using Vector4i = VectorClass<int, 4>;
+using Vector2i = ConstantVector<int, 2>;
+using Vector3i = ConstantVector<int, 3>;
+using Vector4i = ConstantVector<int, 4>;
 
-using Vector2l = VectorClass<long, 2>;
-using Vector3l = VectorClass<long, 3>;
-using Vector4l = VectorClass<long, 4>;
+using Vector2l = ConstantVector<long, 2>;
+using Vector3l = ConstantVector<long, 3>;
+using Vector4l = ConstantVector<long, 4>;
 
-using Vector2u = VectorClass<unsigned int, 2>;
-using Vector3u = VectorClass<unsigned int, 3>;
-using Vector4u = VectorClass<unsigned int, 4>;
+using Vector2u = ConstantVector<unsigned int, 2>;
+using Vector3u = ConstantVector<unsigned int, 3>;
+using Vector4u = ConstantVector<unsigned int, 4>;
 
-using Vector2ul = VectorClass<unsigned long, 2>;
-using Vector3ul = VectorClass<unsigned long, 3>;
-using Vector4ul = VectorClass<unsigned long, 4>;
+using Vector2ul = ConstantVector<unsigned long, 2>;
+using Vector3ul = ConstantVector<unsigned long, 3>;
+using Vector4ul = ConstantVector<unsigned long, 4>;
 
 using Points = std::pair<Vector3d, Vector3d>;
 

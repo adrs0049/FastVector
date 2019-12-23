@@ -54,8 +54,8 @@ public:
         : mat(_mat), inv(_inv)
     {}
 
-    VectorClass<T, 3> transform(const VectorClass<T, 3>& other) const;
-    VectorClass<T, 3> operator()(const VectorClass<T, 3>& other) const;
+    ConstantVector<T, 3> transform(const ConstantVector<T, 3>& other) const;
+    ConstantVector<T, 3> operator()(const ConstantVector<T, 3>& other) const;
 
     Transform inverse() const
     {
@@ -68,7 +68,7 @@ public:
     static Transform rotate_x(T angle);
     static Transform rotate_y(T angle);
     static Transform rotate_z(T angle);
-    static Transform rotate(VectorClass<T, 3> axis, T angle);
+    static Transform rotate(ConstantVector<T, 3> axis, T angle);
 
     static Transform scale(T f);
     static Transform scale(T fx, T fy, T fz);
@@ -78,13 +78,13 @@ private:
 };
 
 template <class T>
-VectorClass<T, 3> Transform<T>::transform(const VectorClass<T, 3>& other) const
+ConstantVector<T, 3> Transform<T>::transform(const ConstantVector<T, 3>& other) const
 {
     return mat * other;
 }
 
 template <class T>
-VectorClass<T, 3> Transform<T>::operator()(const VectorClass<T, 3>& other) const
+ConstantVector<T, 3> Transform<T>::operator()(const ConstantVector<T, 3>& other) const
 {
     return transform(other);
 }
@@ -118,7 +118,7 @@ Transform<T> Transform<T>::rotate_z(T angle)
 }
 
 template <class T>
-Transform<T> Transform<T>::rotate(VectorClass<T, 3> axis, T angle)
+Transform<T> Transform<T>::rotate(ConstantVector<T, 3> axis, T angle)
 {
     return Transform<T>(Matrix<T, 3, 3>::rotate(axis, angle),
                         Matrix<T, 3, 3>::rotate(axis, -angle));
