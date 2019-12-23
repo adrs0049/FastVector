@@ -205,10 +205,22 @@ public:
         return operator[](index);
     }
 
-    UnderlyingType * begin() const { return mpStart; }
-    UnderlyingType * end()   const { return mpEnd; }
+    UnderlyingType * begin() { return mpStart; }
+    const UnderlyingType * begin() const { return mpStart; }
+    const UnderlyingType * cbegin() const { return mpStart; }
 
-    ValueType * data() const { return mpStart; }
+    UnderlyingType * end() { return mpEnd; }
+    const UnderlyingType * end() const { return mpEnd; }
+    const UnderlyingType * cend() const { return mpEnd; }
+
+    UnderlyingType& front() { return operator[](0); }
+    const UnderlyingType& front() const { return operator[](0); }
+
+    UnderlyingType& back() { return operator[](size() - 1); }
+    const UnderlyingType& back() const { return operator[](size() - 1); }
+
+    ValueType * data() { return mpStart; }
+    const ValueType * data() const { return mpStart; }
 
     size_t size() const { return mDataSize; }
     size_t memory_size() const { return mAllocationSize; }

@@ -178,6 +178,9 @@ struct BaseVector
     }
 
     // Access operator
+    T& operator()(const std::size_t i) { return *(begin() + i); }
+    const T& operator()(const std::size_t i) const { return *(cbegin() + i); }
+
     T& operator[](const std::size_t i) { return *(begin() + i); }
     const T& operator[](const std::size_t i) const { return *(cbegin() + i); }
 
@@ -296,7 +299,7 @@ private:
 };
 
 template <typename Derived, typename T, std::size_t N>
-inline typename BaseVector<Derived, T, N>::size_type
+inline constexpr typename BaseVector<Derived, T, N>::size_type
 size(const BaseVector<Derived, T, N>& vector)
 {
     return vector.size();
