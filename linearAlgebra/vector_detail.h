@@ -691,6 +691,19 @@ Derived Normalize(const BaseVector<Derived, T, N>& vector)
     return ret;
 }
 
+template <typename Derived, typename T, std::size_t N>
+Derived Normalize(BaseVector<Derived, T, N>&& vector)
+{
+    Derived ret {vector};
+
+    auto norm = Norm(vector);
+    if (!std::isnormal(norm))
+        throw std::overflow_error("Divide by zero exception!");
+
+    ret /= norm;
+    return ret;
+}
+
 // TODO turn on only for signed types!
 template <typename T, std::size_t N>
 auto Invert(const VectorClass<T, N>& vector)
