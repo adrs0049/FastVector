@@ -119,8 +119,6 @@ public:
     {
         mpStart = (ValueType *)Memory::aligned_alloc(__alignment, mAllocationSize*sizeof(ValueType));
         mpEnd   = mpStart + mDataSize;
-
-        // this should do it?
         VectorAssignment<CSVector<T>, Other>()(static_cast<CSVector<T>&>(*this), that);
     }
 
@@ -557,16 +555,12 @@ const auto operator+(const CSVector<T>& lhs, const size_t index)
     return lhs.begin() + index;
 }
 
-template <class T>
-CSVector<T> abs(const CSVector<T>& lhs)
+template <typename E1>
+inline VectorUnaryExpression<E1, Abs<typename E1::value_type> >
+abs(const VectorExpression<E1>& e1)
 {
-    size_t N = lhs.size();
-    CSVector<T> result(N);
-
-    for (size_t i = 0; i < N; i++)
-        result(i) = std::abs(lhs(i));
-
-    return result;
+    using rtype = VectorUnaryExpression<E1, Abs<typename E1::value_type> >;
+    return rtype(static_cast<const E1&>(e1));
 }
 
 template <typename E1, typename E2>

@@ -99,7 +99,7 @@ public:
                 double maxVal = supNorm(vec1);
 
                 // apply abs to vector
-                auto absVec = abs(vec1);
+                CSVector<double> absVec = abs(vec1);
 
                 auto max_elem = std::max_element(std::begin(absVec), std::end(absVec));
 

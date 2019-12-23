@@ -313,4 +313,17 @@ struct identity
     }
 };
 
+template <typename Value>
+struct Abs
+{
+    using argument_type = const Value&;
+    using result_type   = Value;
+
+    static inline result_type apply(const Value& v) { return std::abs(v); }
+    result_type operator() (const Value& v)
+    {
+        return std::abs(v);
+    }
+};
+
 #endif

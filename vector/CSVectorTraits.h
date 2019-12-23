@@ -33,7 +33,6 @@ template <typename Value> struct Vector : NonScalar {};
 template <typename T>
 class CSVector;
 
-
 // to avoid ambiguity put all expression support into its own namespace
 namespace Expression
 {
@@ -66,6 +65,9 @@ class VectorVectorBinaryExpression;
 template <typename E1, typename E2, typename Functor>
 class VectorScalarBinaryExpression;
 
+template <typename E1, typename Functor>
+struct VectorUnaryExpression;
+
 // Assignment expressions
 template <typename E1, typename E2, typename Functor, typename ExecutionPolicy>
 class VectorVectorAssignmentOpExpression;
@@ -88,6 +90,12 @@ struct AssignShapeHelper<VectorVectorAssignmentOpExpression<E1, E2, Functor, Exe
 
 template <typename E1, typename E2, typename Functor>
 struct AssignShapeHelper<VectorVectorBinaryExpression<E1, E2, Functor> >
+{
+    using type = typename AssignShape<E1>::type;
+};
+
+template <typename E1, typename Functor>
+struct AssignShapeHelper<VectorUnaryExpression<E1, Functor> >
 {
     using type = typename AssignShape<E1>::type;
 };

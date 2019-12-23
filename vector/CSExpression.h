@@ -89,6 +89,49 @@ inline std::size_t size(const VectorVectorBinaryExpression<EE1, EE2, FFunctor>& 
 }
 
 //
+// VectorUnaryExpression: This represents Functor(E1, E2) where E1 and E2 are
+// both of vector type.
+//
+template <typename E1, typename Functor>
+struct VectorUnaryExpression : VectorExpression<VectorUnaryExpression<E1, Functor> >
+{
+    using base = VectorExpression< VectorUnaryExpression<E1, Functor> >;
+    using self = VectorUnaryExpression<E1, Functor>;
+
+    using value_type  = std::common_type_t<typename E1::value_type>;
+    using result_type = typename Functor::result_type;
+    using size_type   = Common_type<typename E1::size_type>;
+
+    using first_argument_type   = E1;
+
+    VectorUnaryExpression(first_argument_type const& v1)
+        : first(v1)
+    {}
+
+    result_type operator()(size_type i) const
+    {
+        return Functor::apply(first(i));
+    }
+
+    result_type operator[](size_type i) const
+    {
+        return (*this)(i);
+    }
+
+    template <typename EE1, typename FFunctor>
+    friend std::size_t size(const VectorUnaryExpression<EE1, FFunctor>&);
+
+private:
+    first_argument_type  const&     first;
+};
+
+template <typename EE1, typename FFunctor>
+inline std::size_t size(const VectorUnaryExpression<EE1, FFunctor>& v)
+{
+    return size(v.first);
+}
+
+//
 // VectorScalarBinaryExpression replaces expressions of the form
 //
 // Functor(E1, E2) where E1 is a vector and E2 is a scalar.
