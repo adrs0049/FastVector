@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <memory>
 #include <random>
@@ -15,7 +16,7 @@
 #define protected public
 #include "../Vector.h"
 
-#define REPEATS 10
+#define REPEATS 50
 
 using namespace std;
 
@@ -104,7 +105,7 @@ private:
         ConstantVector<T, N> ret;
         std::random_device rnd;
         std::mt19937 engine(rnd());
-        std::uniform_real_distribution<T> dist(-1e3, 1e3);
+        std::uniform_real_distribution<T> dist(-1e1, 1e1);
         auto rngen = std::bind(dist, engine);
         std::generate(begin(ret), end(ret), rngen);
         return ret;
@@ -364,6 +365,79 @@ private:
         repeats = REPEATS;
     }
 
+    template <class T, size_t N>
+    void dotTestGeneric()
+    {
+        while (repeats --> 0)
+        {
+            auto vec1 = getRandomVector<T, N>();
+            auto vec2 = getRandomVector<T, N>();
+
+            auto cdot = Dot(vec1, vec2);
+            auto vdot = dotProduct(vec1, vec2);
+
+            double diff = abs(cdot-vdot);
+
+            if (diff > 1e-2)
+            {
+                std::cout << "\t" << std::setprecision(12) << "vec1:" << vec1 << " vec2:" << vec2 << std::endl;
+                std::cout << "\t" << std::setprecision(12) << "dot:" << cdot << " vdot:" << vdot << std::endl;
+                std::cout << "\t" << std::setprecision(12) << "diff:" << abs(cdot - vdot) << std::endl;
+            }
+
+            TS_ASSERT_DELTA(cdot, vdot, 1e-2);
+        }
+
+        repeats = REPEATS;
+    }
+
+    template <class T, size_t N>
+    void normTestGeneric()
+    {
+        while (repeats --> 0)
+        {
+            auto vec1 = getRandomVector<T, N>();
+
+            auto cnorm = Norm(vec1);
+            auto dnorm = Norm2(vec1);
+            auto enorm = Norm2Squared(vec1);
+
+            auto vdot  = dotProduct(vec1, vec1);
+            auto vnorm = getNorm(vec1);
+
+            for (size_t i = 0; i < N; i++)
+            {
+                TS_ASSERT_DELTA(cnorm, vnorm, 1e4 * tol);
+                TS_ASSERT_DELTA(dnorm, vnorm, 1e4 * tol);
+                TS_ASSERT_DELTA(enorm, vdot,  1e4 * tol);
+            }
+        }
+
+        repeats = REPEATS;
+    }
+
+    template <class T>
+    void VectorDotTest()
+    {
+        dotTestGeneric<T, 2>();
+        dotTestGeneric<T, 3>();
+        dotTestGeneric<T, 4>();
+        dotTestGeneric<T, 5>();
+        dotTestGeneric<T, 6>();
+        dotTestGeneric<T, 10>();
+    }
+
+    template <class T>
+    void VectorNormTest()
+    {
+        normTestGeneric<T, 2>();
+        normTestGeneric<T, 3>();
+        normTestGeneric<T, 4>();
+        normTestGeneric<T, 5>();
+        normTestGeneric<T, 6>();
+        normTestGeneric<T, 10>();
+    }
+
     template <class T>
     void VectorAdditionTypeTest()
     {
@@ -465,6 +539,43 @@ public:
     void testConstruction()
     {
         ConstantVector<double, 2> vec = getVector2d();
+    }
+
+    void testDotQuick()
+    {
+        ConstantVector<double, 10> vec1 {-4.93850946426, -8.46946620941, -7.63285923004, -2.6777780056, 6.51855230331, -5.89416980743, -5.11822414398, -1.50745928288, 6.52557373047, 2.04554438591};
+
+        ConstantVector<double, 10> vec2 {-3.02331733704, 3.36335539818, 2.91306257248, 6.8647518158, -7.24288129807, -2.56353974342, -9.11276531219, -3.44443321228, -6.99633932114, -8.41554450989};
+
+        double cdot = Dot(vec1, vec2);
+        double vdot = dotProduct(vec1, vec2);
+
+        TS_ASSERT_DELTA(cdot, vdot, tol);
+    }
+
+    void testDot()
+    {
+        VectorDotTest<double>();
+        VectorDotTest<float>();
+    }
+
+    void testDotQuick2()
+    {
+        ConstantVector<double, 10> vec1 {-4.93850946426, -8.46946620941, -7.63285923004, -2.6777780056, 6.51855230331, -5.89416980743, -5.11822414398, -1.50745928288, 6.52557373047, 2.04554438591};
+
+        ConstantVector<double, 10> vec2 {-3.02331733704, 3.36335539818, 2.91306257248, 6.8647518158, -7.24288129807, -2.56353974342, -9.11276531219, -3.44443321228, -6.99633932114, -8.41554450989};
+
+        double cdot = Dot(vec1, vec2);
+        double vdot = dotProduct(vec1, vec2);
+
+        TS_ASSERT_DELTA(cdot, vdot, tol);
+    }
+
+
+    void testNorm()
+    {
+        VectorNormTest<double>();
+        VectorNormTest<float>();
     }
 
     void testAdditionGeneric()
@@ -1182,5 +1293,11 @@ public:
 
 
     }
+
+    void testDotProduct()
+    {}
+
+
+
 
 };

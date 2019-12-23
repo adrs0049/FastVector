@@ -12,6 +12,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <iterator>
 #include <sstream>
@@ -31,6 +32,7 @@
 #include "VectorOperations.h"
 #include "VectorExpression.h"
 #include "VectorOperations.h"
+#include "VectorReduction.h"
 
 #include "bool_vector.h"
 
@@ -661,8 +663,7 @@ inline T rotationDirection(const T angle, const T targetAngle)
 template <typename Derived, typename T, std::size_t N>
 auto Norm2(const BaseConstantVector<Derived, T, N>& vector)
 {
-    return std::sqrt(std::inner_product(vector.cbegin(), vector.cend(),
-                                        vector.cbegin(), T(0)));
+    return reduction<N, two_norm_functor, T>::apply(vector);
 }
 
 template <typename Derived, typename T, std::size_t N>
@@ -671,37 +672,48 @@ auto Norm(const BaseConstantVector<Derived, T, N>& vector)
     return Norm2(vector);
 }
 
-template <typename Derived, typename T, std::size_t N>
-auto Norm2Squared(const BaseConstantVector<Derived, T, N>& vector)
+template <typename T, std::size_t N>
+auto Norm2Squared(const ConstantVector<T, N>& vector)
 {
-    return std::inner_product(vector.cbegin(), vector.cend(),
-                              vector.cbegin(), T(0));
+    return reduction<N, unary_dot, T>::apply(vector);
+}
+
+template <typename T>
+auto Norm2Squared(const ConstantVector<T, 2>& vector)
+{
+    return vector.x * vector.x + vector.y * vector.y;
+}
+
+template <typename T>
+auto Norm2Squared(const ConstantVector<T, 3>& vector)
+{
+    return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
+}
+
+template <typename T>
+auto Norm2Squared(const ConstantVector<T, 4>& vector)
+{
+    return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z + vector.w * vector.w;
 }
 
 template <typename Derived, typename T, std::size_t N>
 Derived Normalize(const BaseConstantVector<Derived, T, N>& vector)
 {
-    Derived ret {vector};
-
     auto norm = Norm(vector);
     if (!std::isnormal(norm))
         throw std::overflow_error("Divide by zero exception!");
 
-    ret /= norm;
-    return ret;
+    return {vector / norm};
 }
 
 template <typename Derived, typename T, std::size_t N>
 Derived Normalize(BaseConstantVector<Derived, T, N>&& vector)
 {
-    Derived ret {vector};
-
     auto norm = Norm(vector);
     if (!std::isnormal(norm))
         throw std::overflow_error("Divide by zero exception!");
 
-    ret /= norm;
-    return ret;
+    return {vector / norm};
 }
 
 // TODO turn on only for signed types!
@@ -786,7 +798,25 @@ BasisVectors(const T theta, const T phi)
 template <typename T, std::size_t N>
 auto Dot(const ConstantVector<T, N>& lhs, const ConstantVector<T, N>& rhs)
 {
-    return std::inner_product(lhs.cbegin(), lhs.cend(), rhs.cbegin(), T(0));
+    return dot<N>(lhs, rhs);
+}
+
+template <typename T>
+auto Dot(const ConstantVector<T, 2>& lhs, const ConstantVector<T, 2>& rhs)
+{
+    return lhs.x * rhs.x + lhs.y * rhs.y;
+}
+
+template <typename T>
+auto Dot(const ConstantVector<T, 3>& lhs, const ConstantVector<T, 3>& rhs)
+{
+    return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+}
+
+template <typename T>
+auto Dot(const ConstantVector<T, 4>& lhs, const ConstantVector<T, 4>& rhs)
+{
+    return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
 }
 
 template <typename T, typename Transform, std::size_t N>
@@ -1107,7 +1137,7 @@ auto EuclideanDistance(const ConstantVector<T, N>& a, const ConstantVector<T, N>
 }
 
 // input and output
-template<typename T, std::size_t N>
+template<typename T, std::size_t N, std::size_t Precision = 12>
 std::ostream& operator<<(std::ostream& stream,
                          const BaseConstantVector<ConstantVector<T, N>, T, N>& vec)
 {
@@ -1115,8 +1145,8 @@ std::ostream& operator<<(std::ostream& stream,
 
     ss << "(";
     for (auto p = vec.cbegin(); p!=vec.cend() - 1; ++p)
-        ss << *p << ", ";
-    ss << *(vec.cend() - 1) << ")";
+        ss << std::setprecision(Precision) << *p << ", ";
+    ss << std::setprecision(Precision) << *(vec.cend() - 1) << ")";
 
     stream << ss.str();
 
