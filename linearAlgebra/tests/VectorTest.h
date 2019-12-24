@@ -398,19 +398,17 @@ private:
         {
             auto vec1 = getRandomVector<T, N>();
 
-            auto cnorm = Norm(vec1);
-            auto dnorm = Norm2(vec1);
-            auto enorm = Norm2Squared(vec1);
-
             auto vdot  = dotProduct(vec1, vec1);
             auto vnorm = getNorm(vec1);
 
-            for (size_t i = 0; i < N; i++)
-            {
-                TS_ASSERT_DELTA(cnorm, vnorm, 1e4 * tol);
-                TS_ASSERT_DELTA(dnorm, vnorm, 1e4 * tol);
-                TS_ASSERT_DELTA(enorm, vdot,  1e4 * tol);
-            }
+            auto cnorm = Norm(vec1);
+            TS_ASSERT_DELTA(cnorm, vnorm, 1e4 * tol);
+
+            auto dnorm = Norm2(vec1);
+            TS_ASSERT_DELTA(dnorm, vnorm, 1e4 * tol);
+
+            auto enorm = Norm2Squared(vec1);
+            TS_ASSERT_DELTA(enorm, vdot,  1e4 * tol);
         }
 
         repeats = REPEATS;

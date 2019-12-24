@@ -232,11 +232,8 @@ struct reduction
 
         constexpr size_type UNROLL = std::min(Unroll, size_type(8));
 
-        const size_type N        = size(v);
-        const size_type no_loops = N / UNROLL;
-
-        // std::cout << "Unroll: " << Unroll << std::endl;
-        // std::cout << "N:" << N << " loops:" << no_loops << std::endl;
+        const size_type s        = size(v);
+        const size_type sb       = s / UNROLL * UNROLL;
 
         Functor::init(result);
 
@@ -245,7 +242,7 @@ struct reduction
             impl::reduction<0, UNROLL-1, Functor>::init(tmp00, tmp01, tmp02, tmp03, tmp04, tmp05, tmp06, tmp07);
 
             //#pragma omp for
-            for (size_t i = 0; i < no_loops; i+=UNROLL)
+            for (size_t i = 0; i < sb; i+=UNROLL)
                 impl::reduction<0, UNROLL-1, Functor>::update(tmp00, tmp01, tmp02, tmp03, tmp04, tmp05, tmp06, tmp07, v, i);
 
             impl::reduction<0, UNROLL-1, Functor>::finish(tmp00, tmp01, tmp02, tmp03, tmp04, tmp05, tmp06, tmp07);
@@ -254,7 +251,7 @@ struct reduction
             Functor::finish(result, tmp00);
         }
 
-        for (size_t i = UNROLL * no_loops; i < N; i++)
+        for (size_t i = sb; i < s; i++)
             Functor::update(result, v[i]);
 
         return Functor::post_reduction(result);

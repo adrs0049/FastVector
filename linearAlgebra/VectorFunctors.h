@@ -211,12 +211,12 @@ struct assign
     using second_argument_type  = const Value2&;
     using result_type           = Value1&;
 
-    static inline result_type apply(Value1& v1, const Value2& v2)
+    static inline result_type apply(first_argument_type v1, second_argument_type v2)
     {
         return v1 = Value1(v2);
     }
 
-    result_type operator()(Value1& v1, const Value2& v2) const
+    result_type operator()(first_argument_type v1, second_argument_type v2) const
     {
         return v1 = v2;
     }
@@ -229,12 +229,12 @@ struct plus_assign
     using second_argument_type  = const Value2&;
     using result_type           = Value1&;
 
-    static inline result_type apply(Value1& v1, const Value2& v2)
+    static inline result_type apply(first_argument_type v1, second_argument_type v2)
     {
         return v1 += Value1(v2);
     }
 
-    result_type operator()(Value1& v1, const Value2& v2) const
+    result_type operator()(first_argument_type v1, second_argument_type v2) const
     {
         return v1 += v2;
     }
@@ -247,12 +247,12 @@ struct minus_assign
     using second_argument_type  = const Value2&;
     using result_type           = Value1&;
 
-    static inline result_type apply(Value1& v1, const Value2& v2)
+    static inline result_type apply(first_argument_type v1, second_argument_type v2)
     {
         return v1 -= Value1(v2);
     }
 
-    result_type operator()(Value1& v1, const Value2& v2) const
+    result_type operator()(first_argument_type v1, second_argument_type v2) const
     {
         return v1 -= v2;
     }
@@ -265,12 +265,12 @@ struct product_assign
     using second_argument_type  = const Value2&;
     using result_type           = Value1&;
 
-    static inline result_type apply(Value1& v1, const Value2& v2)
+    static inline result_type apply(first_argument_type v1, second_argument_type v2)
     {
         return v1 *= Value1(v2);
     }
 
-    result_type operator()(Value1& v1, const Value2& v2) const
+    result_type operator()(first_argument_type v1, second_argument_type v2) const
     {
         return v1 *= v2;
     }
@@ -283,12 +283,12 @@ struct divide_assign
     using second_argument_type  = const Value2&;
     using result_type           = Value1&;
 
-    static inline result_type apply(Value1& v1, const Value2& v2)
+    static inline result_type apply(first_argument_type v1, second_argument_type v2)
     {
         return v1 /= Value1(v2);
     }
 
-    result_type operator()(Value1& v1, const Value2& v2) const
+    result_type operator()(first_argument_type v1, second_argument_type v2) const
     {
         return v1 /= v2;
     }
@@ -300,12 +300,12 @@ struct identity
     using argument_type = const Value&;
     using result_type   = Value;
 
-    static inline result_type apply(const Value& v)
+    static inline result_type apply(argument_type v)
     {
         return v;
     }
 
-    result_type operator() (const Value& v) const
+    result_type operator() (argument_type v) const
     {
         return v;
     }
@@ -317,10 +317,31 @@ struct Abs
     using argument_type = const Value&;
     using result_type   = Value;
 
-    static inline result_type apply(const Value& v) { return std::abs(v); }
-    result_type operator() (const Value& v)
+    static inline result_type apply(argument_type v)
     {
         return std::abs(v);
+    }
+
+    result_type operator() (argument_type v)
+    {
+        return std::abs(v);
+    }
+};
+
+template <typename Value>
+struct square
+{
+    using argument_type   = const Value&;
+    using result_type     = Value;
+
+    static inline result_type apply(argument_type v)
+    {
+        return v * v;
+    }
+
+    result_type operator()(argument_type v) const
+    {
+        return v * v;
     }
 };
 
