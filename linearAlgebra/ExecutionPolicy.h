@@ -15,9 +15,11 @@
 #include "VectorOperations.h"
 #include "LoopUnroll.h"
 
+#include "type_info.h"
+
 
 template <typename E1, typename E2, typename Functor, bool Vector = true,
-         std::size_t BlockSize = 4, std::size_t Threads = 4>
+         std::size_t BlockSize = 1, std::size_t Threads = 4>
 class ParallelExecutionPolicy
 {
 private:
@@ -29,16 +31,23 @@ public:
     {
         size_type s = size(first), sb = s / BlockSize * BlockSize;
 
-        #pragma omp parallel num_threads(Threads)
+        std::cout << "Execution first< " << type_name<E1>() << "> : " << " second< " << type_name<E2>() << "> :" << std::endl;
+        std::cout << "s:" << s << " sb:" << sb << " blockSize:" << BlockSize << std::endl;
+
+        //#pragma omp parallel num_threads(Threads)
         {
-            #pragma omp for
+            //#pragma omp for
             for (size_type i = 0; i < sb; i+=BlockSize)
+            {
                 impl::unroll<0, BlockSize-1, Functor, Vector>::apply(first, second, i);
+            }
         }
 
         {
             for (size_type i = sb; i < s; i++)
+            {
                 impl::unroll<0, 0, Functor, Vector>::apply(first, second, i);
+            }
         }
     }
 };

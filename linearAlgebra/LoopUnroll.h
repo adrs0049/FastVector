@@ -11,6 +11,9 @@
 #define CS_LOOP_UNROLL_H
 
 #include <cstddef>
+#include <iostream>
+
+#include "type_info.h"
 
 //
 // First we define the helpers that unroll the loop.
@@ -35,6 +38,8 @@ namespace impl {
         template <typename E1, typename E2, typename Size>
         static inline void apply(E1& first, const E2& second, Size i)
         {
+            std::cout << "assign_v first(" << Offset + i << "): " << first(Offset + i) << " second(" << Offset + i << "): "
+                << second(Offset + i) << std::endl;
             Functor::apply(first(Offset + i), second(Offset + i));
             next::apply(first, second, i);
         }
@@ -46,7 +51,34 @@ namespace impl {
         template <typename E1, typename E2, typename Size>
         static inline void apply(E1& first, const E2& second, Size i)
         {
+            std::cout << "\tassign_v first< "
+                << type_name<E1>()
+                << ",\n\t\t\t " << type_name<E2>()
+                << ",\n\t\t\t " << type_name<Functor>()
+                << "> "
+                << std::endl;
+
+            //std::cout << "assign_v first (" << Max + i << "): " << first(Max + i)
+            //    << " second(" << Max + i << "): "
+            //    << second(Max + i) << std::endl;
+
+            auto vv = second(Max + i);
+
+            std::cout << "assign_v; second(" << Max + i << "): "
+                << " i:" << i << " Max:" << Max << " vv:"
+                << vv
+                << " inv: " << 1. / vv
+                << std::endl;
+
             Functor::apply(first(Max + i), second(Max + i));
+
+            auto val = second(Max + i);
+
+            std::cout << "assign_v_after; second(" << Max + i << "): " << val
+                << " inv: " << 1. / val
+                << std::endl;
+
+            std::cout << std::endl;
         }
     };
 
@@ -59,6 +91,9 @@ namespace impl {
         template <typename E1, typename E2, typename Size>
         static inline void apply(E1& first, const E2& second, Size i)
         {
+            std::cout << "assign_s first(" << Offset + i << "): " << first(Offset + i) << " second(" << Offset + i << "): "
+                << second
+                << std::endl;
             Functor::apply(first(Offset + i), second);
             next::apply(first, second, i);
         }

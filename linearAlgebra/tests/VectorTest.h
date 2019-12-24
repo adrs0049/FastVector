@@ -887,17 +887,37 @@ public:
 
     void testNorm2()
     {
+        std::cout << "NORMALIZE!\n\n" << std::endl;
+
         Vector2d c2 {getVector2d()};
         Vector3d c3 {getVector3d()};
         Vector4d c4 {getVector4d()};
+
+        std::cout << "c2:" << c2 << std::endl;
+        std::cout << "c3:" << c3 << std::endl;
+        std::cout << "c4:" << c4 << std::endl;
+
+        Vector2d d2 = Normalize(c2);
+        Vector3d d3 = Normalize(c3);
+        Vector4d d4 = Normalize(c4);
 
         auto n2 = Normalize(c2);
         auto n3 = Normalize(c3);
         auto n4 = Normalize(c4);
 
+        std::cout << "n2:" << Norm(n2) << std::endl;
+        std::cout << "n3:" << Norm(n3) << std::endl;
+        std::cout << "n4:" << Norm(n4) << std::endl;
+
+        std::cout << "d2:" << d2 << std::endl;
+        std::cout << "d3:" << d3 << std::endl;
+        std::cout << "d4:" << d4 << std::endl;
+
         TS_ASSERT_DELTA(Norm(n2), 1., tol);
         TS_ASSERT_DELTA(Norm(n3), 1., tol);
         TS_ASSERT_DELTA(Norm(n4), 1., tol);
+
+        std::cout << "\n\nNORMALIZE DONE!\n\n\n" << std::endl;
     }
 
     void testNorm3()

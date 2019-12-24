@@ -151,11 +151,17 @@ struct VectorScalarBinaryExpression : VectorExpression<VectorScalarBinaryExpress
 
     VectorScalarBinaryExpression (first_argument_type const& v1, second_argument_type const& v2)
         : first(v1), second(v2)
-    {}
+    {
+        std::cout << "VectorScalarBinaryExpression< " << type_name<E1>() << ", " << type_name<E2>() << " > :: "
+            << v1 << ", " << v2 << std::endl;
+    }
 
     result_type operator()(size_type i) const
     {
-        return Functor::apply(first(i), second);
+        std::cout << "\tVecScal-first(" << i << "):" << first(i) << " second:" << second << std::endl;
+        result_type ret =  Functor::apply(first(i), second);
+        std::cout << "\tVecScal-first(" << i << "):" << first(i) << " second:" << second << std::endl;
+        return ret;
     }
 
     result_type operator[](size_type i) const
@@ -214,6 +220,9 @@ struct VectorVectorAssignmentOpExpression :
 
     ~VectorVectorAssignmentOpExpression()
     {
+        std::cout << "VecVec Assign:: E1: " << type_name<E1>() << " E2: " << type_name<E2>()
+            << " policy: " << type_name<ExecutionPolicy>()
+            <<  std::endl;
         ExecutionPolicy::assign(first, second);
     }
 
@@ -276,6 +285,7 @@ struct VectorScalarAssignmentOpExpression :
 
     ~VectorScalarAssignmentOpExpression()
     {
+        std::cout << "VecScal Assign" << std::endl;
         ExecutionPolicy::assign(first, second);
     }
 
@@ -296,7 +306,6 @@ private:
     first_argument_type&            first;
     second_argument_type const&     second;
 };
-
 
 template <typename EE1, typename EE2, typename FFunctor, typename Policy>
 inline std::size_t size(const VectorScalarAssignmentOpExpression<EE1, EE2, FFunctor, Policy>& v)
@@ -369,7 +378,7 @@ struct VectorAssignment<Vector, Source, VectorCategory, scalar>
 // Vector: is the vector type to which we want to assign the result of some op.
 // Source: is the expression whose result we want to assign to Vector
 //
-// We use the traits from CSVectorTraits to switch between the Vector and Scalar
+// We use the traits from VectorTraits to switch between the Vector and Scalar
 // assignment expression.
 //
 template <typename Vector, typename Source>

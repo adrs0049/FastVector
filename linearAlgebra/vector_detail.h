@@ -659,40 +659,25 @@ inline T rotationDirection(const T angle, const T targetAngle)
         return (diffAngle < M_PI) ? -1. : 1;
 }
 
-// Numerical methods of vectors
-template <typename Derived, typename T, std::size_t N>
-auto inline Norm2(const BaseConstantVector<Derived, T, N>& vector)
-{
-    return reduction<N, two_norm_functor, T>::apply(vector);
-}
-
-// template <typename Derived, typename T, std::size_t N>
-// auto inline Norm(const BaseConstantVector<Derived, T, N>& vector)
-// {
-//     return Norm2(vector);
-// }
-
-template <typename T, std::size_t N>
-auto inline Norm2Squared(const ConstantVector<T, N>& vector)
-{
-    return reduction<N, unary_dot, T>::apply(vector);
-}
-
+/// These are implemented to avoid the abstraction penalty of the auto unrolling functions
 template <typename T>
 auto inline Norm(const ConstantVector<T, 2>& vector)
 {
+    std::cout << "Norm<T, 2>" << std::endl;
     return sqrt(Norm2Squared(vector));
 }
 
 template <typename T>
 auto inline Norm(const ConstantVector<T, 3>& vector)
 {
+    std::cout << "Norm<T, 3>" << std::endl;
     return sqrt(Norm2Squared(vector));
 }
 
 template <typename T>
 auto inline Norm(const ConstantVector<T, 4>& vector)
 {
+    std::cout << "Norm<T, 4>" << std::endl;
     return sqrt(Norm2Squared(vector));
 }
 
@@ -714,25 +699,25 @@ auto inline Norm2Squared(const ConstantVector<T, 4>& vector)
     return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z + vector.w * vector.w;
 }
 
-template <typename Derived, typename T, std::size_t N>
-Derived inline Normalize(const BaseConstantVector<Derived, T, N>& vector)
-{
-    auto norm = Norm(vector);
-    if (!std::isnormal(norm))
-        throw std::overflow_error("Divide by zero exception!");
-
-    return {vector / norm};
-}
-
-template <typename Derived, typename T, std::size_t N>
-Derived Normalize(BaseConstantVector<Derived, T, N>&& vector)
-{
-    auto norm = Norm(vector);
-    if (!std::isnormal(norm))
-        throw std::overflow_error("Divide by zero exception!");
-
-    return {vector / norm};
-}
+// template <typename Derived, typename T, std::size_t N>
+// Derived inline Normalize(const BaseConstantVector<Derived, T, N>& vector)
+// {
+//     auto norm = Norm(vector);
+//     if (!std::isnormal(norm))
+//         throw std::overflow_error("Divide by zero exception!");
+//
+//     return {vector / norm};
+// }
+//
+// template <typename Derived, typename T, std::size_t N>
+// Derived Normalize(BaseConstantVector<Derived, T, N>&& vector)
+// {
+//     auto norm = Norm(vector);
+//     if (!std::isnormal(norm))
+//         throw std::overflow_error("Divide by zero exception!");
+//
+//     return {vector / norm};
+// }
 
 // TODO turn on only for signed types!
 template <typename T, std::size_t N>

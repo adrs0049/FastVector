@@ -7,7 +7,7 @@ set(PROJECT_NAME FastVector)
 set(PROJECT_VERSION 1.0)
 set(PROJECT_DESCRIPTION "An implementation of a fast vector for mathematical operations")
 
-set(PROJECT_CXX_STANDARD 14)
+set(PROJECT_CXX_STANDARD 17)
 
 # cmake min version
 cmake_minimum_required(VERSION 3.1)

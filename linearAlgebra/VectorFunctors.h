@@ -11,6 +11,8 @@
 #define VECTOR_FUNCTORS_H
 
 #include <functional>
+#include <iostream>
+
 
 template<class T> struct Assign
 {
@@ -177,6 +179,7 @@ struct divide
 
     static inline result_type apply(first_argument_type v1, second_argument_type v2)
     {
+       // std::cout << "v1:" << v1 << " v2:" << v2 << std::endl;
         return v1 / v2;
     }
 
@@ -213,7 +216,11 @@ struct assign
 
     static inline result_type apply(first_argument_type v1, second_argument_type v2)
     {
-        return v1 = Value1(v2);
+        std::cout << "Assign: v1:" << v1 << " v2:" << v2 << std::endl;
+        v1 = Value1(v2);
+        std::cout << "Assign: v1:" << v1 << " v2:" << v2 << std::endl;
+
+        return v1;
     }
 
     result_type operator()(first_argument_type v1, second_argument_type v2) const

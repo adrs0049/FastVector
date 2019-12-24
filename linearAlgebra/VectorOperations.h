@@ -14,14 +14,63 @@
 #include "VectorExpression.h"
 #include "VectorReduction.h"
 
+#include "type_info.h"
+
 
 using namespace Expression;
 
-template <typename E1>
+template <typename E1, unsigned long Unroll = 4>
 inline auto Norm(const VectorExpression<E1>& e1)
 {
     using value_type = typename E1::value_type;
-    return reduction<4, two_norm_functor, value_type>::apply(static_cast<const E1&>(e1));
+    return reduction<Unroll, two_norm_functor, value_type>::apply(static_cast<const E1&>(e1));
+}
+
+template <typename E1, unsigned long Unroll = 4>
+inline auto Norm2(const VectorExpression<E1>& e1)
+{
+    using value_type = typename E1::value_type;
+    return reduction<Unroll, two_norm_functor, value_type>::apply(static_cast<const E1&>(e1));
+}
+
+template <typename E1, unsigned long Unroll = 4>
+inline auto Norm2Squared(const VectorExpression<E1>& e1)
+{
+    using value_type = typename E1::value_type;
+    return reduction<Unroll, unary_dot, value_type>::apply(static_cast<const E1&>(e1));
+}
+
+template <typename E1>
+inline auto Normalize(const VectorExpression<E1>& e1)
+{
+    std::cout << "Calling normalize: " << type_name<E1>() << std::endl;
+
+    // make sure that we can still call the more specific Norm functions
+    using value_type = typename E1::value_type;
+    //value_type norm = Norm(static_cast<const E1&>(e1));
+    value_type norm = value_type(1);
+    std::cout << "norm: " << norm << std::endl;
+    if (!std::isnormal(norm))
+        throw std::overflow_error("Divide by zero exception!");
+
+    std::cout << "type_norm: " << type_name<value_type>() << std::endl;
+
+    auto ret = static_cast<const E1&>(e1) / norm;
+
+    std::cout << "expr(";
+    for (size_t i = 0; i < size(ret); i++)
+        std::cout << " " << ret(i);
+    std::cout << std::endl << std::endl;
+
+    std::cout << "ret: " << demangle(typeid(ret).name()) << std::endl;
+
+    auto vec = E1(ret);
+    std::cout << "ret: " << vec << std::endl;
+
+    std::cout << "\nnorm:" << norm << "\n";
+    std::cout << "\nRETURN!\n\n";
+    //return vec;
+    return e1 / norm;
 }
 
 template <typename E1, typename E2,

@@ -232,8 +232,8 @@ struct reduction
 
         constexpr size_type UNROLL = std::min(Unroll, size_type(8));
 
-        const size_type s        = size(v);
-        const size_type sb       = s / UNROLL * UNROLL;
+        auto s  = size(v);
+        auto sb = s / UNROLL * UNROLL;
 
         Functor::init(result);
 
