@@ -5,6 +5,9 @@ This repository includes two different classes for the use of common linear alge
 * `CSVector` for large vectors which are dynamically allocated.
 * `Vector<T, N>` for small vectors of fixed size.
 
+*Disclaimer:* This was an educational project, and I do not guarantee correct
+functioning of all code paths. In fact, I know of a few code paths that have
+various bugs.
 
 # `CSVector`
 
