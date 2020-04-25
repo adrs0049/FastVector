@@ -1205,9 +1205,8 @@ auto EuclideanDistance(const ConstantVector<T, N>& a, const ConstantVector<T, N>
 }
 
 // input and output
-template<typename T, std::size_t N, std::size_t Precision = 12>
-std::ostream& operator<<(std::ostream& stream,
-                         const BaseConstantVector<ConstantVector<T, N>, T, N>& vec)
+template<typename T, typename Derived, std::size_t N, std::size_t Precision = 12>
+std::ostream& operator<<(std::ostream& stream,  const BaseConstantVector<Derived, T, N>& vec)
 {
     std::ostringstream ss;
 
@@ -1217,7 +1216,6 @@ std::ostream& operator<<(std::ostream& stream,
     ss << std::setprecision(Precision) << *(vec.cend() - 1) << ")";
 
     stream << ss.str();
-
     return stream;
 }
 
