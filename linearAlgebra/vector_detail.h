@@ -629,6 +629,76 @@ struct ConstantVector<T, 4> : public BaseConstantVector<ConstantVector<T, 4>, T,
     std::size_t memory_size() const { return sizeof(*this); }
 };
 
+template <typename T, std::size_t N>
+struct ConstantVectorView : public BaseConstantVector<ConstantVectorView<T, N>, T, N>
+{
+    static_assert(N > 1, "BaseConstantVector must have more than one element!");
+
+    using reverse_iterator       = typename std::reverse_iterator<T*>;
+    using const_reverse_iterator = typename std::reverse_iterator<const T*>;
+
+    // constructors
+    explicit ConstantVectorView(T * data)
+        : m_data(data)
+    {
+        std::cout << "Creating ConstantVectorView pointing to: "<< data << std::endl;
+    }
+
+    ConstantVectorView(const ConstantVectorView& vector)
+        : m_data(vector.m_data)
+    {}
+
+    ConstantVectorView(ConstantVectorView&& vector)
+        : m_data(vector.m_data)
+    {
+        vector.data = nullptr;
+    }
+
+    ConstantVectorView(ConstantVector<T, N>& vector)
+        : m_data(vector.data())
+    {}
+
+    ConstantVectorView(ConstantVector<T, N>&& vector)
+        : m_data(vector.data())
+    {}
+
+    ConstantVectorView& operator=(const ConstantVectorView& vector)
+    {
+        BaseConstantVector<ConstantVectorView<T, N>, T, N>::operator = (vector);
+        return *this;
+    }
+
+    ConstantVectorView& operator=(ConstantVectorView&& vector)
+    {
+        BaseConstantVector<ConstantVectorView<T, N>, T, N>::operator = (vector);
+        return *this;
+    }
+
+    ~ConstantVectorView() {}
+
+    // Iterator access
+    T* begin() { return m_data; }
+    const T* begin()  const { return m_data; }
+    const T* cbegin() const { return m_data; }
+
+    // reverse_iterator rbegin() { return std::rbegin(data); }
+    // const_reverse_iterator crbegin() const { return std::crbegin(data); }
+
+    T* end() { return m_data + N; }
+    const T* end()  const { return m_data + N; }
+    const T* cend() const { return m_data + N; }
+
+    // reverse_iterator rend() { return std::rend(data); }
+    // const_reverse_iterator crend() const { return std::crend(data); }
+
+    constexpr std::size_t size() const { return N; }
+    std::size_t memory_size() const { return sizeof(*this); }
+
+    // Since this is a view it only has a pointer to the data!
+    // And the pointer should never have to change!
+    T * const m_data;
+};
+
 // swap
 template <typename Derived, typename T, std::size_t N>
 void swap(BaseConstantVector<Derived, T, N>& lhs, BaseConstantVector<Derived, T, N>& rhs)
