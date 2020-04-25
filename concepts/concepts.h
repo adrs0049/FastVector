@@ -35,6 +35,18 @@ constexpr bool Some(bool b, Args... args)
     return b || Some(args...);
 }
 
+template <typename T>
+constexpr bool Const()
+{
+    return std::is_const<T>::value;
+}
+
+template <typename T>
+constexpr bool NotConst()
+{
+    return !Const<T>();
+}
+
 template<typename T, typename U>
 constexpr bool Convertible()
 {
