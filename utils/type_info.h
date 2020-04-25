@@ -30,6 +30,15 @@ struct Impl<First, Args...>
     }
 };
 
+template <typename First>
+struct Impl<First>
+{
+    static std::string name()
+    {
+        return std::string(demangle(typeid(First).name()));
+    }
+};
+
 template<>
 struct Impl<>
 {
