@@ -297,7 +297,9 @@ struct ConstantVector : public BaseConstantVector<ConstantVector<T, N>, T, N>
         : BaseConstantVector<ConstantVector<T, N>, T, N>(first, last, pos)
     {}
 
-    template <class Other, typename = Disable_if<Same<Other, ConstantVector<T, N> >() > >
+    template <class Other, typename = Disable_if<
+        Some(Same<Other, ConstantVector<T, N> >(),
+             BaseOf<BaseConstantVector<ConstantVector<T, N>, T, N>, Other >()) > > // We need this otherwise this turns on when the base type is assigned -> leading to mem corruption
     ConstantVector(const Other& that)
         : BaseConstantVector<ConstantVector<T, N>, T, N>(that)
     {}
@@ -382,7 +384,9 @@ struct ConstantVector<T, 2> : public BaseConstantVector<ConstantVector<T, 2>, T,
         : BaseConstantVector<ConstantVector<T, 2>, T, 2>(values)
     {}
 
-    template <class Other, typename = Disable_if<Same<Other, ConstantVector<T, 2> >() > >
+    template <class Other, typename = Disable_if<
+        Some(Same<Other, ConstantVector<T, 2> >(),
+             BaseOf<BaseConstantVector<ConstantVector<T, 2>, T, 2>, Other >()) > > // We need this otherwise this turns on when the base type is assigned -> leading to mem corruption
     ConstantVector(const Other& that)
         : BaseConstantVector<ConstantVector<T, 2>, T, 2>(that)
     {}
@@ -479,7 +483,9 @@ struct ConstantVector<T, 3> : public BaseConstantVector<ConstantVector<T, 3>, T,
         : BaseConstantVector<ConstantVector<T, 3>, T, 3>(first, last)
     {}
 
-    template <class Other, typename = Disable_if<Same<Other, ConstantVector<T, 2> >() > >
+    template <class Other, typename = Disable_if<
+        Some(Same<Other, ConstantVector<T, 3> >(),
+             BaseOf<BaseConstantVector<ConstantVector<T, 3>, T, 3>, Other >()) > > // We need this otherwise this turns on when the base type is assigned -> leading to mem corruption
     ConstantVector(const Other& that)
         : BaseConstantVector<ConstantVector<T, 3>, T, 3>(that)
     {}
@@ -571,7 +577,9 @@ struct ConstantVector<T, 4> : public BaseConstantVector<ConstantVector<T, 4>, T,
         : BaseConstantVector<ConstantVector<T, 4>, T, 4>(first, last, pos)
     {}
 
-    template <class Other, typename = Disable_if<Same<Other, ConstantVector<T, 2> >() > >
+    template <class Other, typename = Disable_if<
+        Some(Same<Other, ConstantVector<T, 4> >(),
+             BaseOf<BaseConstantVector<ConstantVector<T, 4>, T, 4>, Other >()) > > // We need this otherwise this turns on when the base type is assigned -> leading to mem corruption
     ConstantVector(const Other& that)
         : BaseConstantVector<ConstantVector<T, 4>, T, 4>(that)
     {}
