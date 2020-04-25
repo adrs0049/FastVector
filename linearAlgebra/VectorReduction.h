@@ -224,7 +224,7 @@ struct reduction
     template <typename Vector>
     static inline Result apply(const Vector& v)
     {
-        using value_type  = typename Vector::value_type;
+        //using value_type  = typename Vector::value_type;
         using size_type   = typename Vector::size_type;
 
         Result result;

@@ -20,10 +20,11 @@
 using namespace Expression;
 
 template <typename E1, unsigned long Unroll = 4>
-inline auto Norm(const VectorExpression<E1>& e1)
+inline VectorReductionOperation<E1, two_norm_functor>
+Norm(const VectorExpression<E1>& e1)
 {
-    using value_type = typename E1::value_type;
-    return reduction<Unroll, two_norm_functor, value_type>::apply(static_cast<const E1&>(e1));
+    using rtype = VectorReductionOperation<E1, two_norm_functor>;
+    return rtype(static_cast<const E1&>(e1));
 }
 
 template <typename E1, unsigned long Unroll = 4>
@@ -38,39 +39,6 @@ inline auto Norm2Squared(const VectorExpression<E1>& e1)
 {
     using value_type = typename E1::value_type;
     return reduction<Unroll, unary_dot, value_type>::apply(static_cast<const E1&>(e1));
-}
-
-template <typename E1>
-inline auto Normalize(const VectorExpression<E1>& e1)
-{
-    std::cout << "Calling normalize: " << type_name<E1>() << std::endl;
-
-    // make sure that we can still call the more specific Norm functions
-    using value_type = typename E1::value_type;
-    //value_type norm = Norm(static_cast<const E1&>(e1));
-    value_type norm = value_type(1);
-    std::cout << "norm: " << norm << std::endl;
-    if (!std::isnormal(norm))
-        throw std::overflow_error("Divide by zero exception!");
-
-    std::cout << "type_norm: " << type_name<value_type>() << std::endl;
-
-    auto ret = static_cast<const E1&>(e1) / norm;
-
-    std::cout << "expr(";
-    for (size_t i = 0; i < size(ret); i++)
-        std::cout << " " << ret(i);
-    std::cout << std::endl << std::endl;
-
-    std::cout << "ret: " << demangle(typeid(ret).name()) << std::endl;
-
-    auto vec = E1(ret);
-    std::cout << "ret: " << vec << std::endl;
-
-    std::cout << "\nnorm:" << norm << "\n";
-    std::cout << "\nRETURN!\n\n";
-    //return vec;
-    return e1 / norm;
 }
 
 template <typename E1, typename E2,
@@ -101,7 +69,7 @@ operator*= (VectorExpression<E1>& e1, const E2& e2)
 }
 
 template <typename E1, typename E2,
-          typename = Enable_if<Scalar<E2>()> >
+          typename = Enable_if<All(Scalar<E2>(), NotConst<E1>())> >
 inline VectorScalarAssignmentOpExpression<E1, E2, divide_assign<typename E1::value_type, E2> >
 operator/= (VectorExpression<E1>& e1, const E2& e2)
 {

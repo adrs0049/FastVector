@@ -20,6 +20,7 @@
 #include "concepts.h"
 #include "type_info.h"
 
+#include "VectorReduction.h"
 
 namespace Expression
 {
@@ -39,6 +40,59 @@ namespace Expression
 //
 template <typename Vector>
 struct VectorExpression {};
+
+
+//
+// VectorReductionOperation: This represents Reduction(E1) where E1 is of vector type.
+//
+template <typename E1, typename Functor, unsigned long Unroll = 1>
+    struct VectorReductionOperation
+   // : VectorExpression<VectorReductionOperation<E1, Functor, Unroll> >
+{
+    using base = VectorExpression< VectorReductionOperation<E1, Functor, Unroll> >;
+    using self = VectorReductionOperation<E1, Functor, Unroll>;
+
+    using value_type  = typename E1::value_type;
+    //using result_type = typename Functor::result_type;
+    using result_type = typename E1::value_type;
+    using size_type   = typename E1::size_type;
+
+    using first_argument_type   = E1;
+
+    VectorReductionOperation(first_argument_type const& v1)
+        : first(v1)
+    {}
+
+    // allow this expression to act like a normal scalar type
+    operator result_type() const
+    {
+        return reduction<Unroll, Functor, value_type>::apply(first);
+    }
+
+    result_type get() const
+    {
+       return reduction<Unroll, Functor, value_type>::apply(first);
+    }
+
+    template <typename EE1, typename FFunctor>
+    friend std::size_t size(const VectorReductionOperation<EE1, FFunctor>&);
+
+private:
+    first_argument_type  const&     first;
+};
+
+template <typename EE1, typename FFunctor>
+inline std::size_t size(const VectorReductionOperation<EE1, FFunctor>& v)
+{
+    return size(v.first);
+}
+
+template <typename EE1, typename FFunctor>
+inline std::ostream& operator<<(std::ostream& stream, const VectorReductionOperation<EE1, FFunctor>& v)
+{
+    stream << v.get();
+    return stream;
+}
 
 //
 // VectorVectorBinaryExpression: This represents Functor(E1, E2) where E1 and E2 are
@@ -151,17 +205,11 @@ struct VectorScalarBinaryExpression : VectorExpression<VectorScalarBinaryExpress
 
     VectorScalarBinaryExpression (first_argument_type const& v1, second_argument_type const& v2)
         : first(v1), second(v2)
-    {
-        std::cout << "VectorScalarBinaryExpression< " << type_name<E1>() << ", " << type_name<E2>() << " > :: "
-            << v1 << ", " << v2 << std::endl;
-    }
+    {}
 
     result_type operator()(size_type i) const
     {
-        std::cout << "\tVecScal-first(" << i << "):" << first(i) << " second:" << second << std::endl;
-        result_type ret =  Functor::apply(first(i), second);
-        std::cout << "\tVecScal-first(" << i << "):" << first(i) << " second:" << second << std::endl;
-        return ret;
+        return Functor::apply(first(i), second);
     }
 
     result_type operator[](size_type i) const
@@ -220,9 +268,6 @@ struct VectorVectorAssignmentOpExpression :
 
     ~VectorVectorAssignmentOpExpression()
     {
-        std::cout << "VecVec Assign:: E1: " << type_name<E1>() << " E2: " << type_name<E2>()
-            << " policy: " << type_name<ExecutionPolicy>()
-            <<  std::endl;
         ExecutionPolicy::assign(first, second);
     }
 
@@ -259,11 +304,10 @@ inline std::size_t size(const VectorVectorAssignmentOpExpression<EE1, EE2, FFunc
 // E1 = Functor(E2)
 //
 // where E1 is of vector type and E2 is a scalar. Otherwise the function is the
-// same as of VectorVectorAssignmentOpExpression. Note we are not using openMP
-// here at the moment.
+// same as of VectorVectorAssignmentOpExpression.
 //
 template <typename E1, typename E2, typename Functor,
-         typename ExecutionPolicy = DefaultExecutionPolicy<E1, E2, Functor, false> >
+          typename ExecutionPolicy = DefaultExecutionPolicy<E1, E2, Functor, false> >
 struct VectorScalarAssignmentOpExpression :
     VectorExpression<VectorVectorBinaryExpression<E1, E2, Functor> >,
     private ExecutionPolicy
@@ -285,7 +329,6 @@ struct VectorScalarAssignmentOpExpression :
 
     ~VectorScalarAssignmentOpExpression()
     {
-        std::cout << "VecScal Assign" << std::endl;
         ExecutionPolicy::assign(first, second);
     }
 
