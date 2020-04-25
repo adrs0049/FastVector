@@ -53,7 +53,7 @@ public:
     typedef T ScalarPacket __attribute__((vector_size (sizeof(T) * VectorSize)));
 
     // Creates an empty vector: Does not initialize values!
-    CSVector(const size_t size)
+    CSVector(const size_t size = 0)
         : mAllocationSize(size),
           mDataSize(size),
           mpStart(nullptr),
