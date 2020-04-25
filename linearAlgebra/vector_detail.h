@@ -744,21 +744,18 @@ inline T rotationDirection(const T angle, const T targetAngle)
 template <typename T>
 auto inline Norm(const ConstantVector<T, 2>& vector)
 {
-    std::cout << "Norm<T, 2>" << std::endl;
     return sqrt(Norm2Squared(vector));
 }
 
 template <typename T>
 auto inline Norm(const ConstantVector<T, 3>& vector)
 {
-    std::cout << "Norm<T, 3>" << std::endl;
     return sqrt(Norm2Squared(vector));
 }
 
 template <typename T>
 auto inline Norm(const ConstantVector<T, 4>& vector)
 {
-    std::cout << "Norm<T, 4>" << std::endl;
     return sqrt(Norm2Squared(vector));
 }
 
