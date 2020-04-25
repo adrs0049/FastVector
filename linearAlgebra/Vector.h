@@ -70,9 +70,9 @@ using Vector4d = ConstantVector<double, 4>;
 
 // uncomment when old vector class can be removed
 // this should be float
-using Vector2f = ConstantVector<double, 2>;
-using Vector3f = ConstantVector<double, 3>;
-using Vector4f = ConstantVector<double, 4>;
+using Vector2f = ConstantVector<float, 2>;
+using Vector3f = ConstantVector<float, 3>;
+using Vector4f = ConstantVector<float, 4>;
 
 using Vector2i = ConstantVector<int, 2>;
 using Vector3i = ConstantVector<int, 3>;
