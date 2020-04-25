@@ -331,24 +331,24 @@ struct ConstantVector : public BaseConstantVector<ConstantVector<T, N>, T, N>
     ~ConstantVector() {}
 
     // Iterator access
-    T* begin() { return std::begin(data); }
-    const T* begin()  const { return std::begin(data); }
-    const T* cbegin() const { return std::cbegin(data); }
+    T* begin() { return std::begin(m_data); }
+    const T* begin()  const { return std::begin(m_data); }
+    const T* cbegin() const { return std::cbegin(m_data); }
 
-    reverse_iterator rbegin() { return std::rbegin(data); }
-    const_reverse_iterator crbegin() const { return std::crbegin(data); }
+    reverse_iterator rbegin() { return std::rbegin(m_data); }
+    const_reverse_iterator crbegin() const { return std::crbegin(m_data); }
 
-    T* end() { return std::end(data); }
-    const T* end()  const { return std::end(data); }
-    const T* cend() const { return std::cend(data); }
+    T* end() { return std::end(m_data); }
+    const T* end()  const { return std::end(m_data); }
+    const T* cend() const { return std::cend(m_data); }
 
-    reverse_iterator rend() { return std::rend(data); }
-    const_reverse_iterator crend() const { return std::crend(data); }
+    reverse_iterator rend() { return std::rend(m_data); }
+    const_reverse_iterator crend() const { return std::crend(m_data); }
 
     constexpr std::size_t size() const { return N; }
     std::size_t memory_size() const { return sizeof(*this); }
 
-    T data[N];
+    T m_data[N];
 };
 
 template<typename T>
@@ -420,23 +420,24 @@ struct ConstantVector<T, 2> : public BaseConstantVector<ConstantVector<T, 2>, T,
     ~ConstantVector() {}
 
     union {
-        T data[2];
+        T m_data[2];
         struct { T x, y; };
     };
 
-    T* begin() { return std::begin(data); }
-    const T* begin()  const { return std::begin(data); }
-    const T* cbegin() const { return std::cbegin(data); }
+    // Iterator access
+    T* begin() { return std::begin(m_data); }
+    const T* begin()  const { return std::begin(m_data); }
+    const T* cbegin() const { return std::cbegin(m_data); }
 
-    reverse_iterator rbegin() { return std::rbegin(data); }
-    const_reverse_iterator crbegin() const { return std::crbegin(data); }
+    reverse_iterator rbegin() { return std::rbegin(m_data); }
+    const_reverse_iterator crbegin() const { return std::crbegin(m_data); }
 
-    T* end() { return std::end(data); }
-    const T* end()  const { return std::end(data); }
-    const T* cend() const { return std::cend(data); }
+    T* end() { return std::end(m_data); }
+    const T* end()  const { return std::end(m_data); }
+    const T* cend() const { return std::cend(m_data); }
 
-    reverse_iterator rend() { return std::rend(data); }
-    const_reverse_iterator crend() const { return std::crend(data); }
+    reverse_iterator rend() { return std::rend(m_data); }
+    const_reverse_iterator crend() const { return std::crend(m_data); }
 
     constexpr std::size_t size() const { return 2; }
     std::size_t memory_size() const { return sizeof(*this); }
@@ -508,26 +509,27 @@ struct ConstantVector<T, 3> : public BaseConstantVector<ConstantVector<T, 3>, T,
     ~ConstantVector() {}
 
     union {
-        T data[3];
+        T m_data[3];
         struct { T x, y, z; };
         struct { T r, g, b; };
         struct { T red, green, blue; };
         ConstantVector<T, 2> xy;
     };
 
-    T* begin() { return std::begin(data); }
-    const T* begin()  const { return std::begin(data); }
-    const T* cbegin() const { return std::cbegin(data); }
+    // Iterator access
+    T* begin() { return std::begin(m_data); }
+    const T* begin()  const { return std::begin(m_data); }
+    const T* cbegin() const { return std::cbegin(m_data); }
 
-    reverse_iterator rbegin() { return std::rbegin(data); }
-    const_reverse_iterator crbegin() const { return std::crbegin(data); }
+    reverse_iterator rbegin() { return std::rbegin(m_data); }
+    const_reverse_iterator crbegin() const { return std::crbegin(m_data); }
 
-    T* end() { return std::end(data); }
-    const T* end()  const { return std::end(data); }
-    const T* cend() const { return std::cend(data); }
+    T* end() { return std::end(m_data); }
+    const T* end()  const { return std::end(m_data); }
+    const T* cend() const { return std::cend(m_data); }
 
-    reverse_iterator rend() { return std::rend(data); }
-    const_reverse_iterator crend() const { return std::crend(data); }
+    reverse_iterator rend() { return std::rend(m_data); }
+    const_reverse_iterator crend() const { return std::crend(m_data); }
 
     constexpr std::size_t size() const { return 3; }
     std::size_t memory_size() const { return sizeof(*this); }
@@ -599,7 +601,7 @@ struct ConstantVector<T, 4> : public BaseConstantVector<ConstantVector<T, 4>, T,
     ~ConstantVector() {}
 
     union {
-        T data[4];
+        T m_data[4];
         struct { T x, y, z, w; };
         struct { T r, g, b, a; };
         struct { T red, green, blue, alpha; };
@@ -608,19 +610,20 @@ struct ConstantVector<T, 4> : public BaseConstantVector<ConstantVector<T, 4>, T,
         ConstantVector<T, 3> rgb;
     };
 
-    T* begin() { return std::begin(data); }
-    const T* begin()  const { return std::begin(data); }
-    const T* cbegin() const { return std::cbegin(data); }
+    // Iterator access
+    T* begin() { return std::begin(m_data); }
+    const T* begin()  const { return std::begin(m_data); }
+    const T* cbegin() const { return std::cbegin(m_data); }
 
-    reverse_iterator rbegin() { return std::rbegin(data); }
-    const_reverse_iterator crbegin() const { return std::crbegin(data); }
+    reverse_iterator rbegin() { return std::rbegin(m_data); }
+    const_reverse_iterator crbegin() const { return std::crbegin(m_data); }
 
-    T* end() { return std::end(data); }
-    const T* end()  const { return std::end(data); }
-    const T* cend() const { return std::cend(data); }
+    T* end() { return std::end(m_data); }
+    const T* end()  const { return std::end(m_data); }
+    const T* cend() const { return std::cend(m_data); }
 
-    reverse_iterator rend() { return std::rend(data); }
-    const_reverse_iterator crend() const { return std::crend(data); }
+    reverse_iterator rend() { return std::rend(m_data); }
+    const_reverse_iterator crend() const { return std::crend(m_data); }
 
     constexpr std::size_t size() const { return 4; }
     std::size_t memory_size() const { return sizeof(*this); }
