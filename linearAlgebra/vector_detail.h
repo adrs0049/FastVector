@@ -361,7 +361,7 @@ struct ConstantVector<T, 2> : public BaseConstantVector<ConstantVector<T, 2>, T,
 
     // constructors
     ConstantVector()
-        : BaseConstantVector<ConstantVector<T, 2>, T, 2>()
+        : BaseConstantVector<ConstantVector<T, 2>, T, 2>(T(0))
     {}
 
     ConstantVector(T (&data)[2])
@@ -455,7 +455,7 @@ struct ConstantVector<T, 3> : public BaseConstantVector<ConstantVector<T, 3>, T,
 
     // constructors
     constexpr ConstantVector()
-        : BaseConstantVector<ConstantVector<T, 3>, T, 3>()
+        : BaseConstantVector<ConstantVector<T, 3>, T, 3>(T(0))
     {}
 
     explicit ConstantVector(T (&data)[3])
@@ -549,7 +549,7 @@ struct ConstantVector<T, 4> : public BaseConstantVector<ConstantVector<T, 4>, T,
 
     // constructors
     constexpr ConstantVector()
-        : BaseConstantVector<ConstantVector<T, 4>, T, 4>()
+        : BaseConstantVector<ConstantVector<T, 4>, T, 4>(T(0))
     {}
 
     explicit ConstantVector(T (&data)[4])
