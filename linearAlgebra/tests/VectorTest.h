@@ -122,18 +122,6 @@ private:
     }
 
     template <class T, size_t N>
-    T dotProduct(const ConstantVector<T, N>& lhs, const ConstantVector<T, N>& rhs)
-    {
-        return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), T(0));
-    }
-
-    template <class T, size_t N>
-    T getNorm(const ConstantVector<T, N>& lhs)
-    {
-        return sqrt(dotProduct(lhs, lhs));
-    }
-
-    template <class T, size_t N>
     ConstantVector<T, N> addition(const ConstantVector<T, N>& lhs, const ConstantVector<T, N>& rhs)
     {
         ConstantVector<T, N> ret;
@@ -365,77 +353,6 @@ private:
         repeats = REPEATS;
     }
 
-    template <class T, size_t N>
-    void dotTestGeneric()
-    {
-        while (repeats --> 0)
-        {
-            auto vec1 = getRandomVector<T, N>();
-            auto vec2 = getRandomVector<T, N>();
-
-            auto cdot = Dot(vec1, vec2);
-            auto vdot = dotProduct(vec1, vec2);
-
-            double diff = abs(cdot-vdot);
-
-            if (diff > 1e-2)
-            {
-                std::cout << "\t" << std::setprecision(12) << "vec1:" << vec1 << " vec2:" << vec2 << std::endl;
-                std::cout << "\t" << std::setprecision(12) << "dot:" << cdot << " vdot:" << vdot << std::endl;
-                std::cout << "\t" << std::setprecision(12) << "diff:" << abs(cdot - vdot) << std::endl;
-            }
-
-            TS_ASSERT_DELTA(cdot, vdot, 1e-2);
-        }
-
-        repeats = REPEATS;
-    }
-
-    template <class T, size_t N>
-    void normTestGeneric()
-    {
-        while (repeats --> 0)
-        {
-            auto vec1 = getRandomVector<T, N>();
-
-            auto vdot  = dotProduct(vec1, vec1);
-            auto vnorm = getNorm(vec1);
-
-            auto cnorm = Norm(vec1);
-            TS_ASSERT_DELTA(cnorm, vnorm, 1e4 * tol);
-
-            auto dnorm = Norm2(vec1);
-            TS_ASSERT_DELTA(dnorm, vnorm, 1e4 * tol);
-
-            auto enorm = Norm2Squared(vec1);
-            TS_ASSERT_DELTA(enorm, vdot,  1e4 * tol);
-        }
-
-        repeats = REPEATS;
-    }
-
-    template <class T>
-    void VectorDotTest()
-    {
-        dotTestGeneric<T, 2>();
-        dotTestGeneric<T, 3>();
-        dotTestGeneric<T, 4>();
-        dotTestGeneric<T, 5>();
-        dotTestGeneric<T, 6>();
-        dotTestGeneric<T, 10>();
-    }
-
-    template <class T>
-    void VectorNormTest()
-    {
-        normTestGeneric<T, 2>();
-        normTestGeneric<T, 3>();
-        normTestGeneric<T, 4>();
-        normTestGeneric<T, 5>();
-        normTestGeneric<T, 6>();
-        normTestGeneric<T, 10>();
-    }
-
     template <class T>
     void VectorAdditionTypeTest()
     {
@@ -537,43 +454,6 @@ public:
     void testConstruction()
     {
         ConstantVector<double, 2> vec = getVector2d();
-    }
-
-    void testDotQuick()
-    {
-        ConstantVector<double, 10> vec1 {-4.93850946426, -8.46946620941, -7.63285923004, -2.6777780056, 6.51855230331, -5.89416980743, -5.11822414398, -1.50745928288, 6.52557373047, 2.04554438591};
-
-        ConstantVector<double, 10> vec2 {-3.02331733704, 3.36335539818, 2.91306257248, 6.8647518158, -7.24288129807, -2.56353974342, -9.11276531219, -3.44443321228, -6.99633932114, -8.41554450989};
-
-        double cdot = Dot(vec1, vec2);
-        double vdot = dotProduct(vec1, vec2);
-
-        TS_ASSERT_DELTA(cdot, vdot, tol);
-    }
-
-    void testDot()
-    {
-        VectorDotTest<double>();
-        VectorDotTest<float>();
-    }
-
-    void testDotQuick2()
-    {
-        ConstantVector<double, 10> vec1 {-4.93850946426, -8.46946620941, -7.63285923004, -2.6777780056, 6.51855230331, -5.89416980743, -5.11822414398, -1.50745928288, 6.52557373047, 2.04554438591};
-
-        ConstantVector<double, 10> vec2 {-3.02331733704, 3.36335539818, 2.91306257248, 6.8647518158, -7.24288129807, -2.56353974342, -9.11276531219, -3.44443321228, -6.99633932114, -8.41554450989};
-
-        double cdot = Dot(vec1, vec2);
-        double vdot = dotProduct(vec1, vec2);
-
-        TS_ASSERT_DELTA(cdot, vdot, tol);
-    }
-
-
-    void testNorm()
-    {
-        VectorNormTest<double>();
-        VectorNormTest<float>();
     }
 
     void testAdditionGeneric()
@@ -870,71 +750,6 @@ public:
         TS_ASSERT_EQUALS(m4.w, 4)
     }
 
-    void testNorm1()
-    {
-        Vector2d c2 {getVector2d()};
-        Vector3d c3 {getVector3d()};
-        Vector4d c4 {getVector4d()};
-
-        TS_ASSERT_DELTA(Norm2(c2), norm2d(), tol);
-        TS_ASSERT_DELTA(Norm2(c3), norm3d(), tol);
-        TS_ASSERT_DELTA(Norm2(c4), norm4d(), tol);
-
-        TS_ASSERT_DELTA(Norm(c2), norm2d(), tol);
-        TS_ASSERT_DELTA(Norm(c3), norm3d(), tol);
-        TS_ASSERT_DELTA(Norm(c4), norm4d(), tol);
-    }
-
-    void testNorm2()
-    {
-        std::cout << "NORMALIZE!\n\n" << std::endl;
-
-        Vector2d c2 {getVector2d()};
-        Vector3d c3 {getVector3d()};
-        Vector4d c4 {getVector4d()};
-
-        std::cout << "c2:" << c2 << std::endl;
-        std::cout << "c3:" << c3 << std::endl;
-        std::cout << "c4:" << c4 << std::endl;
-
-        Vector2d d2 = Normalize(c2);
-        Vector3d d3 = Normalize(c3);
-        Vector4d d4 = Normalize(c4);
-
-        auto n2 = Normalize(c2);
-        auto n3 = Normalize(c3);
-        auto n4 = Normalize(c4);
-
-        std::cout << "n2:" << Norm(n2) << std::endl;
-        std::cout << "n3:" << Norm(n3) << std::endl;
-        std::cout << "n4:" << Norm(n4) << std::endl;
-
-        std::cout << "d2:" << d2 << std::endl;
-        std::cout << "d3:" << d3 << std::endl;
-        std::cout << "d4:" << d4 << std::endl;
-
-        TS_ASSERT_DELTA(Norm(n2), 1., tol);
-        TS_ASSERT_DELTA(Norm(n3), 1., tol);
-        TS_ASSERT_DELTA(Norm(n4), 1., tol);
-
-        std::cout << "\n\nNORMALIZE DONE!\n\n\n" << std::endl;
-    }
-
-    void testNorm3()
-    {
-        Vector2d c2 {0, 0};
-        Vector3d c3 {0, 0, 0};
-        Vector4d c4 {0, 0, 0, 0};
-
-        TS_ASSERT_THROWS(Normalize(c2), std::runtime_error);
-        TS_ASSERT_THROWS(Normalize(c3), std::runtime_error);
-        TS_ASSERT_THROWS(Normalize(c4), std::runtime_error);
-
-        TS_ASSERT_DELTA(Norm(c2), 0., tol);
-        TS_ASSERT_DELTA(Norm(c3), 0., tol);
-        TS_ASSERT_DELTA(Norm(c4), 0., tol);
-    }
-
     void testAddition1()
     {
         Vector2d c2 {getVector2d()};
@@ -1140,136 +955,6 @@ public:
         TS_ASSERT_EQUALS(c4.w, 2.0)
     }
 
-    void testUnitVector()
-    {
-        auto phis   = linspaced(0., 2. * M_PI, 360);
-        auto thetas = linspaced(0., M_PI, 180);
-
-        for (auto phi : phis)
-        {
-            for (auto theta : thetas)
-            {
-                auto vec = UnitVector(theta, phi);
-
-                // Now compute spherical coordinates and see if they match
-                double r = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
-                double t = std::acos(vec.z);
-                double p = std::atan2(vec.y, vec.x);
-                if (p < 0.)
-                    p = 2. * M_PI + p;
-
-                TS_ASSERT_DELTA(r, 1., tol);
-                TS_ASSERT_DELTA(t, theta, tol);
-                if (t > 0.)
-                    TS_ASSERT_DELTA(p, phi,   tol);
-            }
-        }
-    }
-
-    void testUnitVector2()
-    {
-        auto phis   = linspaced(0., 2. * M_PI, 360);
-        auto thetas = linspaced(0., M_PI, 180);
-
-        for (auto phi : phis)
-        {
-            for (auto theta : thetas)
-            {
-                auto vec = UnitVector(theta, phi + 2. * M_PI);
-
-                // Now compute spherical coordinates and see if they match
-                double r = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
-                double t = std::acos(vec.z);
-                double p = std::atan2(vec.y, vec.x);
-                if (p < 0.)
-                    p = 2. * M_PI + p;
-
-                TS_ASSERT_DELTA(r, 1., tol);
-                TS_ASSERT_DELTA(t, theta, tol);
-                if (t > 0.)
-                    TS_ASSERT_DELTA(p, phi,   tol);
-            }
-        }
-    }
-
-    void testUnitVector3()
-    {
-        auto phis   = linspaced(0., 2. * M_PI, 360);
-        auto thetas = linspaced(0., M_PI, 180);
-
-        for (auto phi : phis)
-        {
-            for (auto theta : thetas)
-            {
-                auto vec = UnitVector(theta + M_PI, phi);
-
-                // Now compute spherical coordinates and see if they match
-                double r = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
-                double t = std::acos(vec.z);
-                double p = std::atan2(vec.y, vec.x);
-                if (p < 0.)
-                    p = 2. * M_PI + p;
-
-                TS_ASSERT_DELTA(r, 1., tol);
-                TS_ASSERT_DELTA(t, theta, tol);
-                if (t > 0.)
-                    TS_ASSERT_DELTA(p, phi,   tol);
-            }
-        }
-    }
-
-    void testUnitVector4()
-    {
-        auto phis   = linspaced(0., 2. * M_PI, 360);
-        auto thetas = linspaced(0., M_PI, 180);
-
-        for (auto phi : phis)
-        {
-            for (auto theta : thetas)
-            {
-                auto vec = UnitVector(theta, phi - 2. * M_PI);
-
-                // Now compute spherical coordinates and see if they match
-                double r = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
-                double t = std::acos(vec.z);
-                double p = std::atan2(vec.y, vec.x);
-                if (p < 0.)
-                    p = 2. * M_PI + p;
-
-                TS_ASSERT_DELTA(r, 1., tol);
-                TS_ASSERT_DELTA(t, theta, tol);
-                if (t > 0.)
-                    TS_ASSERT_DELTA(p, phi,   tol);
-            }
-        }
-    }
-
-    void testUnitVector5()
-    {
-        auto phis   = linspaced(0., 2. * M_PI, 360);
-        auto thetas = linspaced(0., M_PI, 180);
-
-        for (auto phi : phis)
-        {
-            for (auto theta : thetas)
-            {
-                auto vec = UnitVector(theta - M_PI, phi);
-
-                // Now compute spherical coordinates and see if they match
-                double r = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
-                double t = std::acos(vec.z);
-                double p = std::atan2(vec.y, vec.x);
-                if (p < 0.)
-                    p = 2. * M_PI + p;
-
-                TS_ASSERT_DELTA(r, 1., tol);
-                TS_ASSERT_DELTA(t, theta, tol);
-                if (t > 0.)
-                    TS_ASSERT_DELTA(p, phi,   tol);
-            }
-        }
-    }
-
     void testAngle()
     {
         auto ax = getAngle_xy(ex);
@@ -1305,17 +990,5 @@ public:
                 TS_ASSERT_DELTA(angle, wrap_angle(angleToWrap, 2. * M_PI), tol);
             }
     }
-
-    void testRotationDirection()
-    {
-
-
-    }
-
-    void testDotProduct()
-    {}
-
-
-
 
 };
