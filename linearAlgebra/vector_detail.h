@@ -52,8 +52,8 @@ struct BaseConstantVector : public VectorExpression<BaseConstantVector<Derived, 
     using reverse_iterator       = typename std::reverse_iterator<T*>;
     using const_reverse_iterator = typename std::reverse_iterator<const T*>;
 
-    constexpr BaseConstantVector()
-        : BaseConstantVector(T(0))
+    // by default we just do nothing
+    BaseConstantVector()
     {}
 
     BaseConstantVector(T (&data)[N]) // avoid decay to pointer
@@ -61,17 +61,17 @@ struct BaseConstantVector : public VectorExpression<BaseConstantVector<Derived, 
         std::copy(std::begin(data), std::end(data), begin());
     }
 
-    explicit BaseConstantVector(const BaseConstantVector& vector)
+    BaseConstantVector(const BaseConstantVector& vector)
     {
         std::copy(vector.cbegin(), vector.cend(), begin());
     }
 
-    explicit BaseConstantVector(BaseConstantVector&& vector)
+    BaseConstantVector(BaseConstantVector&& vector)
     {
-        swap(vector, *this);
+        this->swap(vector);
     }
 
-    explicit BaseConstantVector(const T value)
+    BaseConstantVector(const T value)
     {
         set(value);
     }
@@ -269,7 +269,7 @@ struct ConstantVector : public BaseConstantVector<ConstantVector<T, N>, T, N>
 
     // constructors
     constexpr ConstantVector()
-        : BaseConstantVector<ConstantVector<T, N>, T, N>()
+        : BaseConstantVector<ConstantVector<T, N>, T, N>(T(0))
     {}
 
     explicit ConstantVector(T (&data)[N])
