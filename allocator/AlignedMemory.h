@@ -115,8 +115,8 @@ struct aligned_memory_header
     size_t allocated_size;
 };
 
-static bool is_aligned(const void * RESTRICT ptr, size_t alignment);
-static size_t align_on(size_t value, size_t alignment) noexcept;
+bool is_aligned(const void * RESTRICT ptr, size_t alignment);
+size_t align_on(size_t value, size_t alignment) noexcept;
 
 void * aligned_alloc(size_t alignment, size_t size) ALLOC_ALIGN(1) ALLOC_SIZE(2) MALLOC;
 void * aligned_realloc(void * ptr, size_t alignment, size_t size) ALLOC_ALIGN(2) ALLOC_SIZE(3);

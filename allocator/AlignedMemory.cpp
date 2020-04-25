@@ -19,12 +19,12 @@ using std::size_t;
 
 namespace Memory {
 
-    static bool is_aligned(const void * RESTRICT ptr, size_t alignment)
+    bool is_aligned(const void * RESTRICT ptr, size_t alignment)
     {
         return (uintptr_t)ptr % alignment == 0;
     }
 
-    static size_t align_on(size_t value, size_t alignment) noexcept
+    size_t align_on(size_t value, size_t alignment) noexcept
     {
         return (value+alignment-1) & ~(alignment-1);
     }
