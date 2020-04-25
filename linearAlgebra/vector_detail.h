@@ -777,25 +777,12 @@ auto inline Norm2Squared(const ConstantVector<T, 4>& vector)
     return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z + vector.w * vector.w;
 }
 
-// template <typename Derived, typename T, std::size_t N>
-// Derived inline Normalize(const BaseConstantVector<Derived, T, N>& vector)
-// {
-//     auto norm = Norm(vector);
-//     if (!std::isnormal(norm))
-//         throw std::overflow_error("Divide by zero exception!");
-//
-//     return {vector / norm};
-// }
-//
-// template <typename Derived, typename T, std::size_t N>
-// Derived Normalize(BaseConstantVector<Derived, T, N>&& vector)
-// {
-//     auto norm = Norm(vector);
-//     if (!std::isnormal(norm))
-//         throw std::overflow_error("Divide by zero exception!");
-//
-//     return {vector / norm};
-// }
+// Need to do this here since we need to construct the correct Derived class
+template <typename Derived, typename T, std::size_t N>
+Derived inline Normalize(const BaseConstantVector<Derived, T, N>& vector)
+{
+    return {vector / Norm(vector)};
+}
 
 // TODO turn on only for signed types!
 template <typename T, std::size_t N>
