@@ -350,6 +350,25 @@ struct Exp
 };
 
 template <typename Value>
+struct Power
+{
+    using argument_type   = const Value&;
+    using result_type     = Value;
+
+    template <typename ExpType>
+    static inline result_type apply(argument_type v, const ExpType exponent)
+    {
+        return std::pow(v, exponent);
+    }
+
+    template <typename ExpType>
+    result_type operator()(argument_type v, const ExpType exponent) const
+    {
+        return std::pow(v, exponent);
+    }
+};
+
+template <typename Value>
 struct square
 {
     using argument_type   = const Value&;
