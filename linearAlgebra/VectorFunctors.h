@@ -12,6 +12,7 @@
 
 #include <functional>
 #include <iostream>
+#include <cmath>
 
 
 template<class T> struct Assign
@@ -332,6 +333,23 @@ struct Abs
 };
 
 template <typename Value>
+struct Exp
+{
+    using argument_type = const Value&;
+    using result_type   = Value;
+
+    static inline result_type apply(argument_type v)
+    {
+        return std::exp(v);
+    }
+
+    result_type operator() (argument_type v)
+    {
+        return std::exp(v);
+    }
+};
+
+template <typename Value>
 struct square
 {
     using argument_type   = const Value&;
@@ -345,6 +363,40 @@ struct square
     result_type operator()(argument_type v) const
     {
         return v * v;
+    }
+};
+
+template <typename Value>
+struct cube
+{
+    using argument_type   = const Value&;
+    using result_type     = Value;
+
+    static inline result_type apply(argument_type v)
+    {
+        return v * v * v;
+    }
+
+    result_type operator()(argument_type v) const
+    {
+        return v * v * v;
+    }
+};
+
+template <typename Value>
+struct quartic
+{
+    using argument_type   = const Value&;
+    using result_type     = Value;
+
+    static inline result_type apply(argument_type v)
+    {
+        return v * v * v * v;
+    }
+
+    result_type operator()(argument_type v) const
+    {
+        return v * v * v * v;
     }
 };
 

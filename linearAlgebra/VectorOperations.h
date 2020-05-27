@@ -198,6 +198,38 @@ abs(const VectorExpression<E1>& e1)
     return rtype(static_cast<const E1&>(e1));
 }
 
+template <typename E1>
+inline VectorUnaryExpression<E1, Exp<typename E1::value_type> >
+exp(const VectorExpression<E1>& e1)
+{
+    using rtype = VectorUnaryExpression<E1, Exp<typename E1::value_type> >;
+    return rtype(static_cast<const E1&>(e1));
+}
+
+template <typename E1>
+inline VectorUnaryExpression<E1, square<typename E1::value_type> >
+pow2(const VectorExpression<E1>& e1)
+{
+    using rtype = VectorUnaryExpression<E1, square<typename E1::value_type> >;
+    return rtype(static_cast<const E1&>(e1));
+}
+
+template <typename E1>
+inline VectorUnaryExpression<E1, cube<typename E1::value_type> >
+pow3(const VectorExpression<E1>& e1)
+{
+    using rtype = VectorUnaryExpression<E1, cube<typename E1::value_type> >;
+    return rtype(static_cast<const E1&>(e1));
+}
+
+template <typename E1>
+inline VectorUnaryExpression<E1, quartic<typename E1::value_type> >
+pow4(const VectorExpression<E1>& e1)
+{
+    using rtype = VectorUnaryExpression<E1, quartic<typename E1::value_type> >;
+    return rtype(static_cast<const E1&>(e1));
+}
+
 template <typename E1, typename E2>
 inline VectorVectorAssignmentOpExpression<E1, E2, plus_assign<typename E1::value_type, typename E2::value_type> >
 operator+= (VectorExpression<E1>& e1, const VectorExpression<E2>& e2)
