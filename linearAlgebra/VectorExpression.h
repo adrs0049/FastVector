@@ -13,7 +13,6 @@
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
-#include <iostream>
 
 #include "VectorTraits.h"
 #include "ExecutionPolicy.h"

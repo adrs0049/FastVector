@@ -11,6 +11,7 @@
 #define CS_VECTOR_CONTAINER_H
 
 #include <cassert>
+#include <cstring>
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
@@ -110,8 +111,9 @@ public:
         other.mDataSize         = 0;
     }
 
-    // Assignment operator for the use with template expressions
-    template <class Other, typename = Disable_if<Same<Other, CSVector<T> >()> >
+    // Assignment operator for the use with template expressions - TODO create a
+    // trait for this assignment operator it currently gets selected too often!
+    template <class Other, typename = Disable_if<Same<Other, CSVector<T> >() || Integral<Other>() > >
     CSVector(const Other& that)
         : mAllocationSize(Expression::size(that)),
         mDataSize(Expression::size(that)),
@@ -220,8 +222,8 @@ public:
     UnderlyingType& back() { return operator[](size() - 1); }
     const UnderlyingType& back() const { return operator[](size() - 1); }
 
-    ValueType * data() { return mpStart; }
-    const ValueType * data() const { return mpStart; }
+    ValueType * data(size_t index = 0) { return mpStart + index; }
+    const ValueType * data(size_t index = 0) const { return mpStart + index; }
 
     size_t size() const { return mDataSize; }
     size_t memory_size() const { return mAllocationSize; }

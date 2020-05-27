@@ -648,9 +648,7 @@ struct ConstantVectorView : public BaseConstantVector<ConstantVectorView<T, N>, 
     // constructors
     explicit ConstantVectorView(T * data)
         : m_data(data)
-    {
-        std::cout << "Creating ConstantVectorView pointing to: "<< data << std::endl;
-    }
+    {}
 
     ConstantVectorView(const ConstantVectorView& vector)
         : m_data(vector.m_data)
@@ -670,15 +668,33 @@ struct ConstantVectorView : public BaseConstantVector<ConstantVectorView<T, N>, 
         : m_data(vector.data())
     {}
 
-    ConstantVectorView& operator=(const ConstantVectorView& vector)
+    ConstantVectorView& operator=(const ConstantVector<T, N>& vector)
     {
         BaseConstantVector<ConstantVectorView<T, N>, T, N>::operator = (vector);
         return *this;
     }
 
-    ConstantVectorView& operator=(ConstantVectorView&& vector)
+    ConstantVectorView& operator=(ConstantVector<T, N>&& vector)
     {
         BaseConstantVector<ConstantVectorView<T, N>, T, N>::operator = (vector);
+        return *this;
+    }
+
+    ConstantVectorView& operator=(const T value)
+    {
+        BaseConstantVector<ConstantVectorView<T, N>, T, N>::operator = (value);
+        return *this;
+    }
+
+    ConstantVectorView& operator=(const ConstantVectorView& vector)
+    {
+        m_data = vector.m_data;
+        return *this;
+    }
+
+    ConstantVectorView& operator=(ConstantVectorView&& vector)
+    {
+        m_data = vector.m_data;
         return *this;
     }
 
@@ -704,7 +720,7 @@ struct ConstantVectorView : public BaseConstantVector<ConstantVectorView<T, N>, 
 
     // Since this is a view it only has a pointer to the data!
     // And the pointer should never have to change!
-    T * const m_data;
+    T * m_data;
 };
 
 // swap

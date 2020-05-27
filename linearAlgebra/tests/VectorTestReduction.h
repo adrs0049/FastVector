@@ -492,5 +492,23 @@ public:
         TS_ASSERT_DELTA(cdot, vdot, tol);
     }
 
+    void testNormOperation()
+    {
+        Vector2f c2 {getVector2f()};
+        Vector2f d2 {getVector2f()};
+
+        float norm2 = Norm2Squared(c2 - d2);
+        TS_ASSERT_DELTA(norm2, 0, ftol);
+
+        Vector3f c3 {getVector3f()};
+        Vector3f d3 {getVector3f()};
+
+        Vector4f c4 {getVector4f()};
+        Vector4f d4 {getVector4f()};
+
+
+
+
+    }
 
 };
